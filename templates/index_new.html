@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A股热门题材推荐</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; padding: 20px; color: #fff; }
+        .container { max-width: 100%; margin: 0 auto; padding: 0 15px; }
+        h1 { text-align: left; margin-bottom: 10px; font-size: 28px; background: linear-gradient(90deg, #00d4ff, #7b2cbf); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { text-align: left; color: #888; margin-bottom: 20px; font-size: 14px; }
+        .loading { text-align: center; padding: 60px; color: #888; font-size: 18px; }
+        .themes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; width: 100%; }
+        .theme-card { background: rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        .theme-header { background: linear-gradient(135deg, rgba(123,44,191,0.8), rgba(0,212,255,0.6)); padding: 15px 18px; display: flex; justify-content: space-between; align-items: center; }
+        .theme-name { font-size: 18px; font-weight: 600; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .theme-stats { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+        .theme-change { font-size: 20px; font-weight: bold; padding: 4px 10px; border-radius: 6px; background: rgba(0,0,0,0.2); }
+        .emotion-label { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .stock-list { padding: 12px; }
+        .stock-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 12px; border-radius: 8px; margin-bottom: 8px; background: rgba(255,255,255,0.03); }
+        .stock-info { flex: 1; }
+        .stock-name { font-weight: 600; color: #fff; font-size: 15px; }
+        .stock-code { color: #888; font-size: 12px; margin-left: 8px; }
+        .stock-meta { font-size: 12px; color: #666; margin-top: 6px; }
+        .stock-meta span { margin-right: 12px; }
+        .stock-price { text-align: right; min-width: 90px; }
+        .price-value { font-size: 20px; font-weight: bold; }
+        .price-change { font-size: 14px; margin-top: 2px; }
+        .up { color: #ff4757; }
+        .down { color: #2ed573; }
+        .score-badge { display: inline-block; background: rgba(0,212,255,0.2); color: #00d4ff; padding: 3px 8px; border-radius: 4px; font-size: 11px; }
+        .signal-row { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+        .signal-text { font-size: 12px; color: #ffa502; }
+        .tag { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-left: 6px; }
+        .tag-special { background: rgba(255,71,87,0.3); color: #ff4757; font-weight: bold; }
+        .tag-leader { background: linear-gradient(135deg, #ff4757, #ff6b81); color: #fff; font-weight: bold; }
+        .tag-auction { background: rgba(155,89,182,0.3); color: #9b59b6; font-weight: bold; }
+        .stock-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+        .buy-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 8px; }
+        .strong-buy { background: linear-gradient(135deg, #ff4757, #ff6b81); color: #fff; }
+        .can-buy { background: rgba(46,213,115,0.2); color: #2ed573; border: 1px solid #2ed573; }
+        .watch { background: rgba(255,165,2,0.15); color: #ffa502; }
+        .highlight-stock { background: rgba(255,71,87,0.08) !important; border-left: 3px solid #ff4757; }
+        .strength-tag { font-size: 11px; color: #888; margin-top: 4px; }
+        .reason { font-size: 11px; color: #888; margin-top: 4px; }
+        .emotion-row { font-size: 11px; color: #aaa; margin-top: 4px; }
+        .toolbar { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .refresh-btn { padding: 12px 35px; background: linear-gradient(135deg, #7b2cbf, #00d4ff); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; }
+        .refresh-btn:disabled { opacity: 0.5; }
+        .error { color: #ff4757; padding: 20px; text-align: center; background: rgba(255,71,87,0.1); border-radius: 8px; }
+        .update-time { text-align: center; color: #666; font-size: 12px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1> A股热门题材推荐</h1>
+        <p class="subtitle">实时追踪市场热点，每个题材精选2-3只领涨股</p>
+        <div class="toolbar"><button class="refresh-btn" onclick="loadData()"> 刷新数据</button></div>
+        <div id="content" class="loading">正在获取数据...</div>
+        <div class="update-time" id="updateTime"></div>
+    </div>
+    <script>
+        async function loadData() {
+            const content = document.getElementById('content');
+            const btn = document.querySelector('.refresh-btn');
+            const timeEl = document.getElementById('updateTime');
+            content.innerHTML = '<div class="loading">正在获取数据...</div>';
+            btn.disabled = true;
+            const startTime = Date.now();
+            try {
+                const res = await fetch('/api/all?t=' + Date.now());
+                const json = await res.json();
+                if (!json.success) throw new Error(json.error);
+                renderData(json.data);
+                timeEl.textContent = '更新: ' + new Date().toLocaleString();
+            } catch (e) {
+                content.innerHTML = '<div class="error">' + e.message + '</div>';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+        function renderData(data) {
+            const content = document.getElementById('content');
+            if (!data) { content.innerHTML = '<div class="error">暂无数据</div>'; return; }
+            let html = '<div class="themes">';
+            for (const [theme, td] of Object.entries(data)) {
+                const info = td.info || {};
+                const stocks = td.stocks || [];
+                const emotion = td.emotion || {};
+                const hotScore = td.hot_score || 0;
+                const themeChange = info.change_pct || 0;
+                const changeClass = themeChange >= 0 ? 'up' : 'down';
+                const emotionStage = emotion.stage || '';
+                const emotionColor = emotion.color || '#6c757d';
+                const emotionAdvice = emotion.advice || '';
+                const emotionLabel = emotionStage ? '<span class="emotion-label" style="background:'+emotionColor+'33;color:'+emotionColor+';border:1px solid '+emotionColor+'">'+emotionStage+'</span>' : '';
+                html += '<div class="theme-card"><div class="theme-header"><div>';
+                html += '<div class="theme-name"> ' + theme + ' ' + emotionLabel + '</div>';
+                html += '<div class="theme-stats">' + (info.up_count||0) + ' ' + (info.down_count||0) + ' | 热度 ' + hotScore.toFixed(0) + '</div>';
+                if (emotionAdvice) html += '<div class="emotion-row"> ' + emotionAdvice + '</div>';
+                html += '</div><div class="theme-change ' + changeClass + '">' + (themeChange>=0?'+':'') + themeChange.toFixed(2) + '%</div></div><div class="stock-list">';
+                if (stocks.length === 0) {
+                    html += '<div class="empty-stock">暂无推荐</div>';
+                } else {
+                    for (const stock of stocks) {
+                        if (stock.error) { html += '<div class="stock-item"><div class="stock-info"><span class="stock-name">' + (stock.name||stock.code) + '</span></div></div>'; continue; }
+                        const changeNum = stock.change_pct_num || 0;
+                        const colorClass = changeNum >= 0 ? 'up' : 'down';
+                        let tags = [];
+                        if (stock.is_first_limit) tags.push('<span class="tag tag-leader">率先涨停</span>');
+                        if (stock.open_strength === '竞价涨停' || stock.open_strength === '竞价强势') tags.push('<span class="tag tag-auction">' + stock.open_strength + '</span>');
+                        if (stock.is_weak_to_strong) tags.push('<span class="tag tag-special">弱转强' + (stock.weak_to_strong_type ? ''+stock.weak_to_strong_type : '') + '</span>');
+                        let buyTag = '';
+                        if (stock.score >= 90 || stock.is_first_limit || stock.is_weak_to_strong) buyTag = '<span class="buy-tag strong-buy">强烈推荐</span>';
+                        else if (stock.score >= 80) buyTag = '<span class="buy-tag can-buy">可买入</span>';
+                        else if (stock.score >= 70) buyTag = '<span class="buy-tag watch">观察</span>';
+                        html += '<div class="stock-item' + ((stock.score>=90||stock.is_first_limit)?'highlight-stock':'') + '">';
+                        html += '<div class="stock-info"><span class="stock-name">' + stock.name + '</span><span class="stock-code">' + stock.code + '</span>' + buyTag;
+                        if (tags.length) html += '<div class="stock-tags">' + tags.join('') + '</div>';
+                        html += '<div class="stock-meta"><span>量能 <b>' + stock.volume_level + '</b></span><span>换手 ' + (stock.turnover_rate||'-') + '</span><span>成交 ' + stock.amount + '</span></div>';
+                        html += '<div class="signal-row"><span class="score-badge">评分 ' + stock.score + '</span><span class="signal-text">' + stock.signal + '</span></div>';
+                        html += '<div class="reason">' + stock.reason + '</div></div>';
+                        html += '<div class="stock-price"><div class="price-value ' + colorClass + '">' + stock.price + '</div><div class="price-change ' + colorClass + '">' + stock.change_pct + '</div><div class="strength-tag">' + stock.strength + '</div></div></div>';
+                    }
+                }
+                html += '</div></div>';
+            }
+            html += '</div>';
+            content.innerHTML = html;
+        }
+        loadData();
+    </script>
+</body>
+</html>
