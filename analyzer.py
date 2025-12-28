@@ -369,6 +369,105 @@ def get_recommendation_reason(stock: dict, details: dict) -> str:
     return "，".join(reasons) if reasons else "综合表现一般"
 
 
+def identify_stock_role(stock: dict, all_stocks: list, theme_change: float = 0, market_change: float = 0) -> dict:
+    """
+    识别股票在题材中的角色
+    
+    角色类型：
+    - 龙头：跑得最快(率先涨停/封板早) + 逆势强(大盘差时依然领涨)
+    - 中军：涨幅不错(3-9%) + 市值较大 + 成交活跃，板块核心主力
+    - 低吸：回调到位、缩量企稳、有反弹预期
+    
+    返回: {"role": "龙头/中军/低吸/跟风", "role_reason": "原因"}
+    """
+    change_pct = stock.get("change_pct", 0) or 0
+    market_cap = stock.get("market_cap", 0) or 0
+    amount = stock.get("amount", 0) or 0
+    amplitude = stock.get("amplitude", 0) or 0
+    
+    # 计算板块内排名
+    sorted_by_change = sorted(all_stocks, key=lambda x: x.get("change_pct", 0) or 0, reverse=True)
+    sorted_by_cap = sorted(all_stocks, key=lambda x: x.get("market_cap", 0) or 0, reverse=True)
+    sorted_by_amount = sorted(all_stocks, key=lambda x: x.get("amount", 0) or 0, reverse=True)
+    
+    change_rank = next((i for i, s in enumerate(sorted_by_change) if s.get("code") == stock.get("code")), 99) + 1
+    cap_rank = next((i for i, s in enumerate(sorted_by_cap) if s.get("code") == stock.get("code")), 99) + 1
+    amount_rank = next((i for i, s in enumerate(sorted_by_amount) if s.get("code") == stock.get("code")), 99) + 1
+    
+    role = "跟风"
+    role_reason = ""
+    
+    # ========== 龙头判断 ==========
+    # 核心：跑得最快 + 逆势强
+    
+    # 1. 涨停 + 封板早（振幅小说明封得早/一字板）
+    if change_pct >= 9.9:
+        if amplitude <= 5:
+            # 振幅小，说明早盘就封板了，跑得最快
+            role = "龙头"
+            role_reason = "强势封板"
+        elif amplitude <= 8:
+            role = "龙头"
+            role_reason = "涨停领涨"
+        elif change_rank == 1:
+            # 虽然振幅大但是板块第一
+            role = "龙头"
+            role_reason = "板块最强"
+    
+    # 2. 逆势龙头：大盘跌但它涨停或大涨
+    if role != "龙头" and market_change < -0.5:
+        # 大盘跌超0.5%
+        if change_pct >= 9.9:
+            role = "龙头"
+            role_reason = "逆势涨停"
+        elif change_pct >= 5 and change_rank == 1:
+            role = "龙头"
+            role_reason = "逆势领涨"
+    
+    # 3. 板块内绝对领先（涨幅比第二名高3%以上）
+    if role != "龙头" and change_rank == 1 and len(sorted_by_change) >= 2:
+        second_change = sorted_by_change[1].get("change_pct", 0) or 0
+        if change_pct - second_change >= 3 and change_pct >= 5:
+            role = "龙头"
+            role_reason = "绝对领先"
+    
+    # ========== 中军判断 ==========
+    # 涨幅不错(3-9%) + 市值较大 + 成交活跃
+    if role == "跟风":
+        if 3 <= change_pct < 9.9:
+            if cap_rank <= len(all_stocks) // 2 or amount_rank <= 5:
+                if market_cap >= 10000000000:  # 100亿以上
+                    role = "中军"
+                    role_reason = f"涨{change_pct:.1f}%强势"
+                elif amount_rank <= 3:
+                    role = "中军"
+                    role_reason = "放量跟涨"
+        elif 2 <= change_pct < 3:
+            if cap_rank <= 3 and market_cap >= 20000000000:
+                role = "中军"
+                role_reason = "权重稳涨"
+    
+    # ========== 低吸判断 ==========
+    if role == "跟风":
+        if -3 <= change_pct <= 1 and amplitude <= 4:
+            if amount_rank >= len(all_stocks) // 2:
+                role = "低吸"
+                role_reason = "缩量企稳"
+            elif change_pct < 0 and change_pct > -2:
+                role = "低吸"
+                role_reason = "小幅回调"
+        elif change_pct < 0 and change_pct > -3 and theme_change > 0:
+            role = "低吸"
+            role_reason = "逆势回踩"
+    
+    return {
+        "role": role,
+        "role_reason": role_reason,
+        "change_rank": change_rank,
+        "cap_rank": cap_rank,
+    }
+
+
 def format_amount(amount):
     """格式化成交额"""
     if not amount:
@@ -397,14 +496,16 @@ def format_stock_display(stock: dict, theme_stocks: List[dict] = None, market_ch
         return {"error": "无数据"}
     
     price = stock.get("price", 0)
-    if not price or price == "-":
+    change_pct = stock.get("change_pct", 0) or 0
+    
+    # 只有当price和change_pct都无效时才认为是停牌
+    if (not price or price == "-") and change_pct == 0:
         return {
             "code": stock.get("code", ""),
             "name": stock.get("name", ""),
             "error": "停牌或无数据",
         }
     
-    change_pct = stock.get("change_pct", 0) or 0
     score, details = calculate_score(stock, market_change, theme_change)
     strength_info = details.get("strength", {})
     
@@ -422,6 +523,9 @@ def format_stock_display(stock: dict, theme_stocks: List[dict] = None, market_ch
     # 前排强度
     is_front_runner = strength_info.get("is_front_runner", False)
     front_runner_tags = strength_info.get("front_runner_tags", [])
+    
+    # 识别股票角色（龙头/中军/低吸）
+    role_info = identify_stock_role(stock, theme_stocks or [], theme_change, market_change)
     
     result = {
         "code": stock.get("code", ""),
@@ -450,6 +554,9 @@ def format_stock_display(stock: dict, theme_stocks: List[dict] = None, market_ch
         # 前排强度
         "is_front_runner": is_front_runner,
         "front_runner_tags": front_runner_tags,
+        # 股票角色
+        "role": role_info["role"],
+        "role_reason": role_info["role_reason"],
     }
     
     return result
@@ -457,7 +564,8 @@ def format_stock_display(stock: dict, theme_stocks: List[dict] = None, market_ch
 
 def analyze_and_format_stocks(stocks: List[dict], market_change: float = 0, theme_change: float = 0) -> List[dict]:
     """
-    分析并格式化股票列表，按评分排序
+    分析并格式化股票列表
+    返回5只股票：龙头优先，然后是中军和低吸
     
     参数:
         stocks: 股票列表
@@ -465,18 +573,55 @@ def analyze_and_format_stocks(stocks: List[dict], market_change: float = 0, them
         theme_change: 板块涨跌幅（用于判断板块内强度）
     """
     formatted = [format_stock_display(s, stocks, market_change, theme_change) for s in stocks]
-    # 过滤掉有错误的，按评分排序
+    # 过滤掉有错误的
     valid = [f for f in formatted if "error" not in f]
     invalid = [f for f in formatted if "error" in f]
-    valid.sort(key=lambda x: x.get("score", 0), reverse=True)
     
-    # 标记率先涨停（排序后第一个涨停的）
+    # 按角色分类
+    leaders = [s for s in valid if s.get("role") == "龙头"]
+    middles = [s for s in valid if s.get("role") == "中军"]
+    dips = [s for s in valid if s.get("role") == "低吸"]
+    others = [s for s in valid if s.get("role") == "跟风"]
+    
+    # 各类别内部按评分排序
+    leaders.sort(key=lambda x: x.get("score", 0), reverse=True)
+    middles.sort(key=lambda x: x.get("score", 0), reverse=True)
+    dips.sort(key=lambda x: x.get("score", 0), reverse=True)
+    others.sort(key=lambda x: x.get("score", 0), reverse=True)
+    
+    # 组合结果：龙头(最多2) + 中军(最多1) + 低吸(最多1) + 其他补足到5
+    result = []
+    
+    # 添加龙头（最多2只）
+    result.extend(leaders[:2])
+    
+    # 添加中军（最多1只）
+    result.extend(middles[:1])
+    
+    # 添加低吸（最多1只）
+    result.extend(dips[:1])
+    
+    # 如果不足5只，用其他股票补足
+    remaining = 5 - len(result)
+    if remaining > 0:
+        # 从剩余的龙头、中军、低吸、跟风中补充
+        pool = leaders[2:] + middles[1:] + dips[1:] + others
+        # 去重
+        existing_codes = {s.get("code") for s in result}
+        for s in pool:
+            if s.get("code") not in existing_codes:
+                result.append(s)
+                existing_codes.add(s.get("code"))
+                if len(result) >= 5:
+                    break
+    
+    # 标记率先涨停（第一个涨停的）
     found_first_limit = False
-    for s in valid:
+    for s in result:
         if s.get("is_limit_up") and not found_first_limit:
             s["is_first_limit"] = True
             found_first_limit = True
         elif s.get("is_first_limit"):
             s["is_first_limit"] = False
     
-    return valid + invalid
+    return result

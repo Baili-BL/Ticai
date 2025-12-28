@@ -235,7 +235,7 @@ def fetch_theme_stocks(theme_code: str, theme_name: str) -> list:
         url = "http://push2.eastmoney.com/api/qt/clist/get"
         params = {
             "pn": 1,
-            "pz": 20,  # 获取前20只，后续筛选
+            "pz": 30,  # 获取更多，过滤后保证数量
             "po": 1,
             "np": 1,
             "fltt": 2,
@@ -253,6 +253,9 @@ def fetch_theme_stocks(theme_code: str, theme_name: str) -> list:
             for item in data["data"]["diff"]:
                 code = item.get("f12", "")
                 if not code:
+                    continue
+                # 过滤科创板（68开头）
+                if code.startswith("68"):
                     continue
                 stocks.append({
                     "code": code,

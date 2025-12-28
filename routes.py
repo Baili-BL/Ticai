@@ -95,6 +95,12 @@ def get_all_data():
             # 分析并格式化股票（传入大盘和板块涨跌幅）
             formatted_stocks = analyze_and_format_stocks(stocks, market_change, theme_change)
             
+            # 调试：如果没有股票，打印原因
+            if not formatted_stocks and stocks:
+                print(f"  ⚠️ {theme_name} 有{len(stocks)}只原始股票但格式化后为空")
+                for s in stocks[:3]:
+                    print(f"    - {s.get('name')} price={s.get('price')} change={s.get('change_pct')}")
+            
             # 打印龙头股和前排强度
             if formatted_stocks:
                 print(f"  龙头: ", end="")
