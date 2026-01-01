@@ -20,9 +20,13 @@ def get_market_index_change() -> float:
     if ak is None:
         return 0
     try:
-        df = ak.stock_zh_index_spot_em(symbol="上证指数")
+        # 获取所有指数实时行情
+        df = ak.stock_zh_index_spot_em()
         if df is not None and not df.empty:
-            return float(df.iloc[0].get("涨跌幅", 0) or 0)
+            # 查找上证指数
+            sh_index = df[df["名称"] == "上证指数"]
+            if not sh_index.empty:
+                return float(sh_index.iloc[0].get("涨跌幅", 0) or 0)
     except Exception as e:
         print(f"获取大盘数据失败: {e}")
     return 0
