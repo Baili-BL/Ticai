@@ -11,6 +11,9 @@ import threading
 # 飞书Webhook地址
 FEISHU_WEBHOOK_URL = "https://open.feishu.cn/open-apis/bot/v2/hook/4dbfb98d-927c-4937-b513-c82605b75c15"
 
+# 飞书表格链接
+FEISHU_SHEET_URL = "https://my.feishu.cn/wiki/QBo5wC0LliWwI8kOGG4cJ0ghnNf"
+
 
 def send_feishu_text(text: str) -> bool:
     """发送纯文本消息到飞书"""
@@ -124,6 +127,13 @@ def build_daily_report(theme_data: Dict, market_change: float = 0) -> tuple:
     
     content = []
     
+    # 飞书表格链接置顶
+    content.append([
+        {"tag": "text", "text": "📋 查看历史数据: "},
+        {"tag": "a", "text": "飞书表格", "href": FEISHU_SHEET_URL},
+        {"tag": "text", "text": "\n"},
+    ])
+    
     theme_count = len(theme_data)
     content.append([
         {"tag": "text", "text": f"今日共监控 {theme_count} 个热门题材\n"},
@@ -192,6 +202,13 @@ def push_daily_stock_report():
         
         if success:
             print(f"✅ 每日股票报告推送成功!")
+            
+            # 同时保存到飞书表格
+            try:
+                from feishu_sheet import save_stock_data_to_sheet
+                save_stock_data_to_sheet()
+            except Exception as e:
+                print(f"⚠️ 保存到表格失败: {e}")
         else:
             print(f"❌ 每日股票报告推送失败!")
             
