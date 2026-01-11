@@ -410,7 +410,8 @@ class StockDataSheet:
         date_str = now.strftime("%Y-%m-%d")
         time_str = now.strftime("%H:%M:%S")
         
-        # 构建新数据
+        # 构建新数据 - 使用列表确保顺序一致（兼容Python 3.7）
+        # 列顺序: 日期, 时间, 题材名称, 题材涨幅%, 情绪阶段, 股票代码, 股票名称, 现价, 涨幅%, 角色, 信号
         new_rows = []
         for theme_name, data in theme_data.items():
             theme_info = data.get("info", {})
@@ -421,24 +422,26 @@ class StockDataSheet:
             stage = emotion.get("stage", "")
             
             for stock in stocks[:5]:
-                new_rows.append({
-                    "日期": date_str,
-                    "时间": time_str,
-                    "题材名称": theme_name,
-                    "题材涨幅%": theme_change,
-                    "情绪阶段": stage,
-                    "股票代码": stock.get("code", ""),
-                    "股票名称": stock.get("name", ""),
-                    "现价": stock.get("price", ""),
-                    "涨幅%": stock.get("change_pct", ""),
-                    "角色": stock.get("role", ""),
-                    "信号": stock.get("signal", "")
-                })
+                # 按固定顺序构建列表，与self.headers一一对应
+                row = [
+                    date_str,                       # 日期
+                    time_str,                       # 时间
+                    theme_name,                     # 题材名称
+                    theme_change,                   # 题材涨幅%
+                    stage,                          # 情绪阶段
+                    stock.get("code", ""),          # 股票代码
+                    stock.get("name", ""),          # 股票名称
+                    stock.get("price", ""),         # 现价
+                    stock.get("change_pct", ""),    # 涨幅%
+                    stock.get("role", ""),          # 角色
+                    stock.get("signal", "")         # 信号
+                ]
+                new_rows.append(row)
         
         if not new_rows:
             return True
         
-        new_df = pd.DataFrame(new_rows)
+        new_df = pd.DataFrame(new_rows, columns=self.headers)
         print(f"📊 新数据: {len(new_df)} 条")
         
         # 读取现有数据
@@ -506,6 +509,9 @@ class StockDataSheet:
         if len(df) == 0:
             print("✅ 表格已清空")
             return True
+        
+        # 确保列顺序正确
+        df = df[self.headers]
         
         # 写入数据
         values = df.values.tolist()
