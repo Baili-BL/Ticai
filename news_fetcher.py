@@ -394,7 +394,7 @@ def evaluate_theme_news_factor(theme_name: str, news_list: List[Dict] = None, st
 def get_market_news_summary() -> Dict:
     """
     获取市场整体消息面摘要
-    """·
+    """
     news_list = fetch_cls_news(50)
     sentiment = analyze_news_sentiment(news_list)
     
