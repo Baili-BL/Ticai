@@ -609,6 +609,7 @@ class StockDataSheet:
                 
                 # 角色列样式 (J列)
                 role = row[9] if len(row) > 9 else ""
+                role = str(role) if not pd.isna(role) else ""  # 处理NaN
                 if role == "龙头":
                     key = ("#FF6B6B", "#FFFFFF", True)
                     if key not in style_groups:
@@ -627,6 +628,7 @@ class StockDataSheet:
                 
                 # 信号列样式 (K列)
                 signal = row[10] if len(row) > 10 else ""
+                signal = str(signal) if not pd.isna(signal) else ""  # 处理NaN
                 if "买" in signal or signal == "关注":
                     key = ("#4CAF50", "#FFFFFF", True)
                     if key not in style_groups:
@@ -640,6 +642,7 @@ class StockDataSheet:
                 
                 # 情绪阶段列样式 (E列)
                 stage = row[4] if len(row) > 4 else ""
+                stage = str(stage) if not pd.isna(stage) else ""  # 处理NaN
                 stage_styles = {
                     "高潮": ("#FFCDD2", "#000000", True),  # 淡红色
                     "发酵": ("#BBDEFB", "#000000", True),  # 淡蓝色
