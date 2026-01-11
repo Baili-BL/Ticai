@@ -446,23 +446,34 @@ class StockDataSheet:
         
         if existing_data and len(existing_data) > 1:
             # 转为DataFrame（跳过表头）
-            old_df = pd.DataFrame(existing_data[1:], columns=self.headers)
-            print(f"📋 现有数据: {len(old_df)} 条")
+            # 确保每行都有11列，不足的补空字符串
+            normalized_data = []
+            for row in existing_data[1:]:
+                if row:  # 跳过空行
+                    # 补齐到11列
+                    normalized_row = list(row) + [""] * (11 - len(row)) if len(row) < 11 else list(row)[:11]
+                    normalized_data.append(normalized_row)
             
-            # 确保日期列为字符串类型，处理空值
-            old_df["日期"] = old_df["日期"].fillna("").astype(str)
-            
-            # 过滤掉无效的日期行（空值或非日期格式）
-            old_df = old_df[old_df["日期"].str.match(r'^\d{4}-\d{2}-\d{2}$', na=False)]
-            
-            # 过滤：删除当天数据 + 删除超过KEEP_DAYS的数据
-            cutoff_date = (now - timedelta(days=KEEP_DAYS)).strftime("%Y-%m-%d")
-            old_df = old_df[old_df["日期"] != date_str]  # 删除当天
-            old_df = old_df[old_df["日期"] >= cutoff_date]  # 删除过期
-            print(f"📋 过滤后保留: {len(old_df)} 条历史数据")
-            
-            # 合并数据
-            final_df = pd.concat([old_df, new_df], ignore_index=True)
+            if not normalized_data:
+                final_df = new_df
+            else:
+                old_df = pd.DataFrame(normalized_data, columns=self.headers)
+                print(f"📋 现有数据: {len(old_df)} 条")
+                
+                # 确保日期列为字符串类型，处理空值
+                old_df["日期"] = old_df["日期"].fillna("").astype(str)
+                
+                # 过滤掉无效的日期行（空值或非日期格式）
+                old_df = old_df[old_df["日期"].str.match(r'^\d{4}-\d{2}-\d{2}$', na=False)]
+                
+                # 过滤：删除当天数据 + 删除超过KEEP_DAYS的数据
+                cutoff_date = (now - timedelta(days=KEEP_DAYS)).strftime("%Y-%m-%d")
+                old_df = old_df[old_df["日期"] != date_str]  # 删除当天
+                old_df = old_df[old_df["日期"] >= cutoff_date]  # 删除过期
+                print(f"📋 过滤后保留: {len(old_df)} 条历史数据")
+                
+                # 合并数据
+                final_df = pd.concat([old_df, new_df], ignore_index=True)
         else:
             final_df = new_df
         
@@ -518,12 +529,16 @@ class StockDataSheet:
         if len(df) == 0:
             return
         
+        # 重置索引确保从0开始连续
+        df = df.reset_index(drop=True)
+        
         # 按题材分组，找出每个题材的起始行和结束行
         current_theme = None
         theme_start = start_row
         
-        for i, row in df.iterrows():
-            theme_name = row.get("题材名称", "")
+        for i in range(len(df)):
+            row = df.iloc[i]
+            theme_name = str(row.get("题材名称", "")) if not pd.isna(row.get("题材名称", "")) else ""
             row_num = start_row + i
             
             if theme_name != current_theme:
