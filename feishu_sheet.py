@@ -449,6 +449,12 @@ class StockDataSheet:
             old_df = pd.DataFrame(existing_data[1:], columns=self.headers)
             print(f"📋 现有数据: {len(old_df)} 条")
             
+            # 确保日期列为字符串类型，处理空值
+            old_df["日期"] = old_df["日期"].fillna("").astype(str)
+            
+            # 过滤掉无效的日期行（空值或非日期格式）
+            old_df = old_df[old_df["日期"].str.match(r'^\d{4}-\d{2}-\d{2}$', na=False)]
+            
             # 过滤：删除当天数据 + 删除超过KEEP_DAYS的数据
             cutoff_date = (now - timedelta(days=KEEP_DAYS)).strftime("%Y-%m-%d")
             old_df = old_df[old_df["日期"] != date_str]  # 删除当天
