@@ -9,182 +9,155 @@
         
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', sans-serif; 
-            background: #0d1117; 
+            background: #f5f6fa; 
             min-height: 100vh; 
-            color: #e6edf3;
-            padding-bottom: env(safe-area-inset-bottom);
+            color: #333;
+            padding-bottom: calc(70px + env(safe-area-inset-bottom));
         }
         
         .icon {
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             display: inline-block;
             vertical-align: middle;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
+            fill: currentColor;
         }
         
-        .icon-sm { width: 14px; height: 14px; }
-        .icon-lg { width: 20px; height: 20px; }
+        .icon-sm { width: 16px; height: 16px; }
+        .icon-lg { width: 24px; height: 24px; }
         
         /* 顶部导航 */
         .navbar {
             position: sticky;
             top: 0;
             z-index: 100;
-            background: rgba(13, 17, 23, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: #fff;
             padding: 12px 16px;
-        }
-        
-        .navbar-content {
+            padding-top: calc(12px + env(safe-area-inset-top));
+            box-shadow: 0 1px 0 rgba(0,0,0,0.05);
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
         }
         
-        .logo {
-            font-size: 18px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #58a6ff, #a371f7);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .nav-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #333;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         
-        .logo .icon { stroke: #58a6ff; width: 20px; height: 20px; }
+        .nav-title .icon { fill: #e74c3c; }
         
-        .nav-actions { display: flex; gap: 8px; align-items: center; }
-        
-        .nav-link {
-            color: #8b949e;
-            text-decoration: none;
-            font-size: 13px;
-            padding: 6px 10px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        .nav-link.active {
-            background: rgba(88, 166, 255, 0.15);
-            color: #58a6ff;
-        }
-        
-        /* 控制栏 */
-        .controls {
-            display: flex;
-            gap: 8px;
-            padding: 12px 16px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        
-        .controls::-webkit-scrollbar { display: none; }
-        
-        .ctrl-btn {
-            flex-shrink: 0;
-            padding: 8px 14px;
-            background: rgba(255,255,255,0.05);
-            color: #8b949e;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
-            font-size: 13px;
+        .update-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 500;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 3px;
         }
         
-        .ctrl-btn:active { background: rgba(255,255,255,0.1); }
-        
-        .ctrl-btn.primary {
-            background: linear-gradient(135deg, #238636, #2ea043);
-            color: #fff;
-            border: none;
-        }
+        .update-btn:disabled { opacity: 0.6; }
+        .update-btn .icon { fill: #fff; width: 14px; height: 14px; }
         
         /* 主内容 */
         .container { padding: 12px; }
         
-        .loading { text-align: center; padding: 60px 20px; color: #8b949e; }
-        .error { text-align: center; padding: 40px; color: #f85149; }
-        .empty { text-align: center; padding: 40px; color: #8b949e; font-size: 14px; }
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
         
-        /* 概览卡片 */
-        .overview {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #e74c3c;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* 核心指标卡片 - 毛玻璃效果 */
+        .core-stats {
+            display: flex;
             gap: 10px;
             margin-bottom: 16px;
         }
         
         .stat-card {
-            background: #161b22;
-            border-radius: 12px;
-            padding: 14px;
-            border: 1px solid rgba(255,255,255,0.08);
+            flex: 1;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 16px 12px;
             text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
         
         .stat-label {
-            font-size: 11px;
-            color: #8b949e;
-            margin-bottom: 6px;
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 4px;
         }
         
+        .stat-label .icon { fill: #999; }
+        
         .stat-value {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
+            color: #333;
         }
         
-        .stat-value.up { color: #f85149; }
-        .stat-value.down { color: #3fb950; }
-        .stat-value.neutral { color: #58a6ff; }
+        .stat-value.up { color: #e74c3c; }
+        .stat-value.down { color: #27ae60; }
         
-        .stat-sub {
-            font-size: 10px;
-            color: #8b949e;
-            margin-top: 4px;
-        }
-        
-        .stat-sub.warn { color: #f85149; }
-        
-        /* 区块 */
+        /* 策略分类 - 毛玻璃效果 */
         .section {
-            background: #161b22;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 16px;
             margin-bottom: 12px;
-            border: 1px solid rgba(255,255,255,0.08);
             overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
         
-        .section-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #58a6ff;
-            padding: 12px 14px;
-            background: rgba(88, 166, 255, 0.08);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+        .section-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f5f5f5;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
         
-        .section-body { padding: 10px; }
+        .section-header .icon { fill: #e74c3c; }
+        
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .section-body { padding: 16px; }
         
         /* 策略网格 */
         .strategy-grid {
@@ -194,462 +167,450 @@
         }
         
         .strategy-card {
-            background: rgba(255,255,255,0.02);
+            background: #f8f9fa;
             border-radius: 10px;
-            padding: 12px;
-            border: 1px solid rgba(255,255,255,0.05);
+            padding: 14px;
         }
         
-        .strategy-card h4 {
+        .strategy-name {
             font-size: 13px;
-            color: #a371f7;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: #666;
+            margin-bottom: 4px;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
         }
         
-        /* 表格 */
-        .data-table { width: 100%; font-size: 12px; }
-        .data-table th { text-align: left; padding: 6px 4px; color: #8b949e; font-weight: normal; }
-        .data-table td { padding: 6px 4px; }
+        .strategy-name .icon { fill: #999; }
         
-        .up { color: #f85149; }
-        .down { color: #3fb950; }
-        
-        /* 标签 */
-        .role-tag {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 10px;
+        .strategy-value {
+            font-size: 18px;
             font-weight: 700;
         }
         
-        .role-leader { background: linear-gradient(135deg, #f85149, #da3633); color: #fff; }
-        .role-middle { background: linear-gradient(135deg, #58a6ff, #388bfd); color: #fff; }
-        .role-dip { background: linear-gradient(135deg, #3fb950, #2ea043); color: #fff; }
-        .role-other { background: rgba(255,255,255,0.1); color: #8b949e; }
+        .strategy-value.up { color: #e74c3c; }
+        .strategy-value.down { color: #27ae60; }
         
-        .score-label {
-            display: inline-block;
-            padding: 2px 6px;
-            background: rgba(88, 166, 255, 0.15);
-            color: #58a6ff;
-            border-radius: 4px;
-            font-size: 10px;
+        .strategy-count {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
         }
         
-        .tag-highlight {
-            display: inline-block;
-            padding: 2px 6px;
-            background: rgba(248, 81, 73, 0.2);
-            color: #f85149;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 600;
-        }
+        /* 榜单 */
+        .rank-list { padding: 0; }
         
-        /* 股票列表 */
-        .stock-list-item {
+        .rank-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            background: rgba(255,255,255,0.02);
-            border-radius: 8px;
-            margin-bottom: 6px;
         }
         
-        .stock-list-item:last-child { margin-bottom: 0; }
+        .rank-item:last-child { border-bottom: none; }
         
-        .stock-list-left {
+        .rank-left {
             display: flex;
             align-items: center;
-            gap: 8px;
-            flex: 1;
-            min-width: 0;
+            gap: 10px;
         }
         
-        .stock-list-name {
-            font-size: 13px;
+        .rank-badge {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .rank-1 { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .rank-2 { background: linear-gradient(135deg, #f39c12, #d68910); }
+        .rank-3 { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        
+        .rank-name {
+            font-size: 14px;
             font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            color: #333;
         }
         
-        .stock-list-code {
-            font-size: 11px;
-            color: #8b949e;
-        }
-        
-        .stock-list-meta {
-            font-size: 11px;
-            color: #8b949e;
-        }
-        
-        .stock-list-return {
+        .rank-profit {
             font-size: 15px;
             font-weight: 700;
-            flex-shrink: 0;
         }
         
-        /* 买不到列表 */
+        /* 无法买入的股票 */
+        .unbuyable-list { padding: 0; }
+        
+        .unbuyable-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .unbuyable-item:last-child { border-bottom: none; }
+        
+        .unbuyable-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .unbuyable-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+        
         .unbuyable-reason {
             font-size: 11px;
-            color: #f85149;
+            color: #f39c12;
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
         }
+        
+        .unbuyable-reason .icon { fill: #f39c12; }
+        
+        .unbuyable-change {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .up { color: #e74c3c; }
+        .down { color: #27ae60; }
+        
+        .empty { 
+            text-align: center; 
+            padding: 30px; 
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 40px 20px;
+            color: #e74c3c;
+        }
+        
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid #f0f0f0;
+            padding: 8px 0;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom));
+            display: flex;
+            justify-content: space-around;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: #999;
+            font-size: 11px;
+            flex: 1;
+        }
+        
+        .nav-item.active {
+            color: #e74c3c;
+        }
+        
+        .nav-item .icon {
+            width: 22px;
+            height: 22px;
+        }
+        
+        .nav-item.active .icon { fill: #e74c3c; }
     </style>
 </head>
 <body>
-    <!-- SVG图标定义 -->
-    <svg style="display:none">
+    <!-- Google Material Icons -->
+    <svg style="display:none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-            <symbol id="icon-trending-up" viewBox="0 0 24 24">
-                <path d="M23 6l-9.5 9.5-5-5L1 18M17 6h6v6"/>
-            </symbol>
-            <symbol id="icon-chart" viewBox="0 0 24 24">
-                <path d="M3 3v18h18M9 17V9m4 8v-5m4 5V6"/>
-            </symbol>
-            <symbol id="icon-list" viewBox="0 0 24 24">
-                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
-            </symbol>
             <symbol id="icon-refresh" viewBox="0 0 24 24">
-                <path d="M23 4v6h-6M1 20v-6h6"/>
-                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                <path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
             </symbol>
-            <symbol id="icon-calendar" viewBox="0 0 24 24">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                <path d="M16 2v4M8 2v4M3 10h18"/>
-            </symbol>
-            <symbol id="icon-tag" viewBox="0 0 24 24">
-                <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
-                <circle cx="7" cy="7" r="1" fill="currentColor"/>
-            </symbol>
-            <symbol id="icon-star" viewBox="0 0 24 24">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </symbol>
-            <symbol id="icon-repeat" viewBox="0 0 24 24">
-                <path d="M17 1l4 4-4 4"/>
-                <path d="M3 11V9a4 4 0 014-4h14"/>
-                <path d="M7 23l-4-4 4-4"/>
-                <path d="M21 13v2a4 4 0 01-4 4H3"/>
-            </symbol>
-            <symbol id="icon-zap" viewBox="0 0 24 24">
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            <symbol id="icon-analytics" viewBox="0 0 24 24">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
             </symbol>
             <symbol id="icon-bar-chart" viewBox="0 0 24 24">
-                <path d="M12 20V10M18 20V4M6 20v-4"/>
+                <path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/>
             </symbol>
-            <symbol id="icon-activity" viewBox="0 0 24 24">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            <symbol id="icon-trophy" viewBox="0 0 24 24">
+                <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/>
             </symbol>
-            <symbol id="icon-award" viewBox="0 0 24 24">
-                <circle cx="12" cy="8" r="7"/>
-                <path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/>
+            <symbol id="icon-warning" viewBox="0 0 24 24">
+                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
             </symbol>
-            <symbol id="icon-alert-triangle" viewBox="0 0 24 24">
-                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                <path d="M12 9v4M12 17h.01"/>
+            <symbol id="icon-up" viewBox="0 0 24 24">
+                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
             </symbol>
-            <symbol id="icon-ban" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M4.93 4.93l14.14 14.14"/>
+            <symbol id="icon-percent" viewBox="0 0 24 24">
+                <path d="M7.5 11C9.43 11 11 9.43 11 7.5S9.43 4 7.5 4 4 5.57 4 7.5 5.57 11 7.5 11zm0-5C8.33 6 9 6.67 9 7.5S8.33 9 7.5 9 6 8.33 6 7.5 6.67 6 7.5 6zM4.41 20L20 4.41 18.59 3 3 18.59 4.41 20zM16.5 13c-1.93 0-3.5 1.57-3.5 3.5s1.57 3.5 3.5 3.5 3.5-1.57 3.5-3.5-1.57-3.5-3.5-3.5zm0 5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+            </symbol>
+            <symbol id="icon-category" viewBox="0 0 24 24">
+                <path d="M12 2l-5.5 9h11L12 2zm0 3.84L13.93 9h-3.87L12 5.84zM17.5 13c-2.49 0-4.5 2.01-4.5 4.5s2.01 4.5 4.5 4.5 4.5-2.01 4.5-4.5-2.01-4.5-4.5-4.5zm0 7c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5zM3 21.5h8v-8H3v8zm2-6h4v4H5v-4z"/>
+            </symbol>
+            <symbol id="icon-tune" viewBox="0 0 24 24">
+                <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
+            </symbol>
+            <symbol id="icon-home" viewBox="0 0 24 24">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </symbol>
+            <symbol id="icon-history" viewBox="0 0 24 24">
+                <path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0013 21a9 9 0 000-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
             </symbol>
         </defs>
     </svg>
 
     <nav class="navbar">
-        <div class="navbar-content">
-            <div class="logo">
-                <svg class="icon"><use href="#icon-trending-up"/></svg>
-                收益统计
-            </div>
-            <div class="nav-actions">
-                <a href="/" class="nav-link">
-                    <svg class="icon icon-sm"><use href="#icon-chart"/></svg>
-                    推荐
-                </a>
-                <a href="/history" class="nav-link">
-                    <svg class="icon icon-sm"><use href="#icon-list"/></svg>
-                    历史
-                </a>
-                <a href="/performance" class="nav-link active">
-                    <svg class="icon icon-sm"><use href="#icon-trending-up"/></svg>
-                    收益
-                </a>
-            </div>
-        </div>
+        <span class="nav-title">
+            <svg class="icon"><use href="#icon-analytics"/></svg>
+            收益统计
+        </span>
+        <button class="update-btn" onclick="updatePerformance()">
+            <svg class="icon"><use href="#icon-refresh"/></svg>
+            更新
+        </button>
     </nav>
     
-    <div class="controls">
-        <button class="ctrl-btn" onclick="loadData(7)">7天</button>
-        <button class="ctrl-btn" onclick="loadData(15)">15天</button>
-        <button class="ctrl-btn" onclick="loadData(30)">30天</button>
-        <button class="ctrl-btn primary" onclick="updatePerformance()">
-            <svg class="icon icon-sm"><use href="#icon-refresh"/></svg>
-            更新收益
-        </button>
+    <div class="container">
+        <div id="content">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <div>加载中...</div>
+            </div>
+        </div>
     </div>
     
-    <div class="container">
-        <div id="content" class="loading">加载中...</div>
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <a href="/" class="nav-item">
+            <svg class="icon"><use href="#icon-home"/></svg>
+            <span>首页</span>
+        </a>
+        <a href="/history" class="nav-item">
+            <svg class="icon"><use href="#icon-history"/></svg>
+            <span>历史</span>
+        </a>
+        <a href="/performance" class="nav-item active">
+            <svg class="icon"><use href="#icon-analytics"/></svg>
+            <span>收益</span>
+        </a>
     </div>
 
     <script>
-        let currentDays = 30;
-        
-        async function loadData(days = 30) {
-            currentDays = days;
-            const content = document.getElementById('content');
-            content.innerHTML = '<div class="loading">加载中...</div>';
-            
+        async function loadData() {
             try {
-                const res = await fetch('/api/performance/summary?days=' + days);
+                const res = await fetch('/api/performance/summary');
                 const json = await res.json();
                 if (!json.success) throw new Error(json.error);
+                
                 renderData(json.data);
             } catch (e) {
-                content.innerHTML = '<div class="error">' + e.message + '</div>';
+                document.getElementById('content').innerHTML = '<div class="error">' + e.message + '</div>';
             }
         }
         
         function renderData(data) {
-            if (!data || data.total_stocks === 0) {
-                document.getElementById('content').innerHTML = `
-                    <div class="empty">
-                        暂无收益数据<br>
-                        <small style="color:#8b949e">请先刷新推荐页面生成报表<br>然后点击"更新收益"</small>
-                    </div>`;
-                return;
-            }
+            const avgPct = data.avg_profit_pct || 0;
+            const totalPct = data.total_profit_pct || 0;
+            const winRate = data.win_rate || 0;
             
-            let html = '';
-            
-            // 概览卡片
-            const winClass = data.win_rate >= 50 ? 'up' : 'down';
-            const avgClass = data.avg_return >= 0 ? 'up' : 'down';
-            const buyableCount = data.buyable_stocks || data.total_stocks;
-            const unbuyableCount = data.unbuyable_stocks || 0;
-            
-            html += `
-            <div class="overview">
+            let html = `
+            <div class="core-stats">
                 <div class="stat-card">
-                    <div class="stat-label"><svg class="icon icon-sm"><use href="#icon-bar-chart"/></svg> 可买入</div>
-                    <div class="stat-value neutral">${buyableCount}</div>
-                    <div class="stat-sub">共${data.total_stocks}只</div>
-                    ${unbuyableCount > 0 ? `<div class="stat-sub warn">${unbuyableCount}只买不到</div>` : ''}
+                    <div class="stat-label">
+                        <svg class="icon icon-sm"><use href="#icon-bar-chart"/></svg>
+                        平均收益
+                    </div>
+                    <div class="stat-value ${avgPct >= 0 ? 'up' : 'down'}">${avgPct >= 0 ? '+' : ''}${avgPct.toFixed(2)}%</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label"><svg class="icon icon-sm"><use href="#icon-activity"/></svg> T+1胜率</div>
-                    <div class="stat-value ${winClass}">${data.win_rate}%</div>
-                    <div class="stat-sub">盈利${data.win_count}只</div>
+                    <div class="stat-label">
+                        <svg class="icon icon-sm"><use href="#icon-up"/></svg>
+                        总收益
+                    </div>
+                    <div class="stat-value ${totalPct >= 0 ? 'up' : 'down'}">${totalPct >= 0 ? '+' : ''}${totalPct.toFixed(2)}%</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label"><svg class="icon icon-sm"><use href="#icon-trending-up"/></svg> T+1收益</div>
-                    <div class="stat-value ${avgClass}">${data.avg_return >= 0 ? '+' : ''}${data.avg_return}%</div>
-                    <div class="stat-sub">平均</div>
+                    <div class="stat-label">
+                        <svg class="icon icon-sm"><use href="#icon-percent"/></svg>
+                        胜率
+                    </div>
+                    <div class="stat-value">${winRate.toFixed(1)}%</div>
                 </div>
             </div>`;
             
-            // 按持有天数统计
-            if (data.by_days && Object.keys(data.by_days).length > 0) {
-                html += `<div class="section">
-                    <div class="section-title"><svg class="icon"><use href="#icon-calendar"/></svg> 不同持有期</div>
-                    <div class="section-body">
-                        <table class="data-table">
-                            <thead><tr><th>持有期</th><th>样本</th><th>收益</th><th>胜率</th></tr></thead>
-                            <tbody>`;
-                
-                for (const [period, stats] of Object.entries(data.by_days)) {
-                    const avgClass = stats.avg_return >= 0 ? 'up' : 'down';
-                    html += `<tr>
-                        <td><strong>${period}</strong></td>
-                        <td>${stats.count}</td>
-                        <td class="${avgClass}">${stats.avg_return >= 0 ? '+' : ''}${stats.avg_return}%</td>
-                        <td>${stats.win_rate}%</td>
-                    </tr>`;
-                }
-                html += '</tbody></table></div></div>';
+            // 策略分类收益
+            const strategy = data.strategy_analysis || {};
+            
+            html += `
+            <div class="section">
+                <div class="section-header">
+                    <svg class="icon"><use href="#icon-category"/></svg>
+                    <span class="section-title">策略分类收益</span>
+                </div>
+                <div class="section-body">
+                    <div class="strategy-grid">`;
+            
+            // 角色维度
+            const roles = strategy.by_role || {};
+            for (const [role, info] of Object.entries(roles)) {
+                const pct = info.avg_profit_pct || 0;
+                html += `
+                <div class="strategy-card">
+                    <div class="strategy-name">${role}</div>
+                    <div class="strategy-value ${pct >= 0 ? 'up' : 'down'}">${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%</div>
+                    <div class="strategy-count">${info.count || 0}只</div>
+                </div>`;
             }
             
-            // 策略分类统计
-            html += `<div class="section"><div class="section-title"><svg class="icon"><use href="#icon-chart"/></svg> 策略分类收益（T+1）</div><div class="section-body"><div class="strategy-grid">`;
+            // 其他维度
+            const dims = [
+                { key: 'by_score', label: '评分' },
+                { key: 'by_weak_to_strong', label: '弱转强' },
+                { key: 'by_first_limit', label: '首板' },
+                { key: 'by_volume', label: '成交量' },
+                { key: 'by_strength', label: '强度' }
+            ];
             
-            // 按角色
-            if (data.by_role && Object.keys(data.by_role).length > 0) {
-                html += `<div class="strategy-card"><h4><svg class="icon icon-sm"><use href="#icon-tag"/></svg> 按角色</h4><table class="data-table">
-                    <thead><tr><th>角色</th><th>收益</th><th>胜率</th></tr></thead><tbody>`;
-                const roleOrder = ['龙头', '中军', '低吸', '跟风'];
-                for (const role of roleOrder) {
-                    const stats = data.by_role[role];
-                    if (!stats) continue;
-                    const avgClass = stats.avg_return >= 0 ? 'up' : 'down';
-                    let roleTag = '';
-                    if (role === '龙头') roleTag = '<span class="role-tag role-leader">龙头</span>';
-                    else if (role === '中军') roleTag = '<span class="role-tag role-middle">中军</span>';
-                    else if (role === '低吸') roleTag = '<span class="role-tag role-dip">低吸</span>';
-                    else roleTag = '<span class="role-tag role-other">跟风</span>';
-                    html += `<tr><td>${roleTag}</td><td class="${avgClass}">${stats.avg_return >= 0 ? '+' : ''}${stats.avg_return}%</td><td>${stats.win_rate}%</td></tr>`;
+            for (const dim of dims) {
+                const dimData = strategy[dim.key] || {};
+                for (const [name, info] of Object.entries(dimData)) {
+                    const pct = info.avg_profit_pct || 0;
+                    html += `
+                    <div class="strategy-card">
+                        <div class="strategy-name">${name}</div>
+                        <div class="strategy-value ${pct >= 0 ? 'up' : 'down'}">${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%</div>
+                        <div class="strategy-count">${info.count || 0}只</div>
+                    </div>`;
                 }
-                html += '</tbody></table></div>';
-            }
-            
-            // 按评分
-            if (data.by_score && Object.keys(data.by_score).length > 0) {
-                html += `<div class="strategy-card"><h4><svg class="icon icon-sm"><use href="#icon-star"/></svg> 按评分</h4><table class="data-table">
-                    <thead><tr><th>评分</th><th>收益</th><th>胜率</th></tr></thead><tbody>`;
-                const scoreOrder = ['90+强推', '80-89可买', '70-79观察', '<70弱'];
-                for (const label of scoreOrder) {
-                    const stats = data.by_score[label];
-                    if (!stats) continue;
-                    const avgClass = stats.avg_return >= 0 ? 'up' : 'down';
-                    html += `<tr><td><span class="score-label">${label}</span></td><td class="${avgClass}">${stats.avg_return >= 0 ? '+' : ''}${stats.avg_return}%</td><td>${stats.win_rate}%</td></tr>`;
-                }
-                html += '</tbody></table></div>';
-            }
-            
-            // 弱转强
-            if (data.by_weak_to_strong && Object.keys(data.by_weak_to_strong).length > 0) {
-                html += `<div class="strategy-card"><h4><svg class="icon icon-sm"><use href="#icon-repeat"/></svg> 弱转强</h4><table class="data-table">
-                    <thead><tr><th>类型</th><th>收益</th><th>胜率</th></tr></thead><tbody>`;
-                for (const [label, stats] of Object.entries(data.by_weak_to_strong)) {
-                    const avgClass = stats.avg_return >= 0 ? 'up' : 'down';
-                    const tagClass = label === '弱转强' ? 'tag-highlight' : '';
-                    html += `<tr><td><span class="${tagClass}">${label}</span></td><td class="${avgClass}">${stats.avg_return >= 0 ? '+' : ''}${stats.avg_return}%</td><td>${stats.win_rate}%</td></tr>`;
-                }
-                html += '</tbody></table></div>';
-            }
-            
-            // 前排强度
-            if (data.by_front_runner && Object.keys(data.by_front_runner).length > 0) {
-                html += `<div class="strategy-card"><h4><svg class="icon icon-sm"><use href="#icon-zap"/></svg> 前排强度</h4><table class="data-table">
-                    <thead><tr><th>类型</th><th>收益</th><th>胜率</th></tr></thead><tbody>`;
-                for (const [label, stats] of Object.entries(data.by_front_runner)) {
-                    const avgClass = stats.avg_return >= 0 ? 'up' : 'down';
-                    const tagClass = label === '前排强势' ? 'tag-highlight' : '';
-                    html += `<tr><td><span class="${tagClass}">${label}</span></td><td class="${avgClass}">${stats.avg_return >= 0 ? '+' : ''}${stats.avg_return}%</td><td>${stats.win_rate}%</td></tr>`;
-                }
-                html += '</tbody></table></div>';
-            }
-            
-            // 按量能
-            if (data.by_volume && Object.keys(data.by_volume).length > 0) {
-                html += `<div class="strategy-card"><h4><svg class="icon icon-sm"><use href="#icon-bar-chart"/></svg> 按量能</h4><table class="data-table">
-                    <thead><tr><th>量能</th><th>收益</th><th>胜率</th></tr></thead><tbody>`;
-                const volumeOrder = ['爆量', '放量', '中量', '缩量', '地量'];
-                for (const label of volumeOrder) {
-                    const stats = data.by_volume[label];
-                    if (!stats) continue;
-                    const avgClass = stats.avg_return >= 0 ? 'up' : 'down';
-                    html += `<tr><td>${label}</td><td class="${avgClass}">${stats.avg_return >= 0 ? '+' : ''}${stats.avg_return}%</td><td>${stats.win_rate}%</td></tr>`;
-                }
-                html += '</tbody></table></div>';
-            }
-            
-            // 按强度
-            if (data.by_strength && Object.keys(data.by_strength).length > 0) {
-                html += `<div class="strategy-card"><h4><svg class="icon icon-sm"><use href="#icon-activity"/></svg> 按强度</h4><table class="data-table">
-                    <thead><tr><th>强度</th><th>收益</th><th>胜率</th></tr></thead><tbody>`;
-                const strengthOrder = ['涨停', '强势', '偏强', '震荡', '偏弱', '弱势'];
-                for (const label of strengthOrder) {
-                    const stats = data.by_strength[label];
-                    if (!stats) continue;
-                    const avgClass = stats.avg_return >= 0 ? 'up' : 'down';
-                    html += `<tr><td>${label}</td><td class="${avgClass}">${stats.avg_return >= 0 ? '+' : ''}${stats.avg_return}%</td><td>${stats.win_rate}%</td></tr>`;
-                }
-                html += '</tbody></table></div>';
             }
             
             html += '</div></div></div>';
             
-            // 最佳表现
-            if (data.best_stocks && data.best_stocks.length > 0) {
-                html += `<div class="section"><div class="section-title"><svg class="icon"><use href="#icon-award"/></svg> 最佳表现（T+1）</div><div class="section-body">`;
-                for (const s of data.best_stocks) {
-                    let roleTag = '';
-                    if (s.role === '龙头') roleTag = '<span class="role-tag role-leader">龙头</span>';
-                    else if (s.role === '中军') roleTag = '<span class="role-tag role-middle">中军</span>';
-                    else if (s.role === '低吸') roleTag = '<span class="role-tag role-dip">低吸</span>';
-                    html += `<div class="stock-list-item">
-                        <div class="stock-list-left">
-                            ${roleTag}
-                            <span class="stock-list-name">${s.name}</span>
-                            <span class="stock-list-code">${s.code}</span>
+            // 最佳策略
+            const best = data.best_strategies || [];
+            if (best.length > 0) {
+                html += `
+                <div class="section">
+                    <div class="section-header">
+                        <svg class="icon"><use href="#icon-trophy"/></svg>
+                        <span class="section-title">最佳策略 TOP3</span>
+                    </div>
+                    <div class="section-body">
+                        <div class="rank-list">`;
+                
+                best.slice(0, 3).forEach((s, idx) => {
+                    const pct = s.avg_profit_pct || 0;
+                    html += `
+                    <div class="rank-item">
+                        <div class="rank-left">
+                            <span class="rank-badge rank-${idx + 1}">${idx + 1}</span>
+                            <span class="rank-name">${s.name}</span>
                         </div>
-                        <div class="stock-list-return up">+${s.return_pct}%</div>
+                        <span class="rank-profit up">+${pct.toFixed(2)}%</span>
                     </div>`;
-                }
-                html += '</div></div>';
+                });
+                
+                html += '</div></div></div>';
             }
             
-            // 最差表现
-            if (data.worst_stocks && data.worst_stocks.length > 0) {
-                html += `<div class="section"><div class="section-title"><svg class="icon"><use href="#icon-alert-triangle"/></svg> 最差表现（T+1）</div><div class="section-body">`;
-                for (const s of data.worst_stocks) {
-                    let roleTag = '';
-                    if (s.role === '龙头') roleTag = '<span class="role-tag role-leader">龙头</span>';
-                    else if (s.role === '中军') roleTag = '<span class="role-tag role-middle">中军</span>';
-                    else if (s.role === '低吸') roleTag = '<span class="role-tag role-dip">低吸</span>';
-                    const retClass = s.return_pct >= 0 ? 'up' : 'down';
-                    html += `<div class="stock-list-item">
-                        <div class="stock-list-left">
-                            ${roleTag}
-                            <span class="stock-list-name">${s.name}</span>
-                            <span class="stock-list-code">${s.code}</span>
+            // 待优化策略
+            const worst = data.worst_strategies || [];
+            if (worst.length > 0) {
+                html += `
+                <div class="section">
+                    <div class="section-header">
+                        <svg class="icon"><use href="#icon-tune"/></svg>
+                        <span class="section-title">待优化策略</span>
+                    </div>
+                    <div class="section-body">
+                        <div class="rank-list">`;
+                
+                worst.slice(0, 3).forEach((s, idx) => {
+                    const pct = s.avg_profit_pct || 0;
+                    html += `
+                    <div class="rank-item">
+                        <div class="rank-left">
+                            <span class="rank-badge rank-${idx + 1}">${idx + 1}</span>
+                            <span class="rank-name">${s.name}</span>
                         </div>
-                        <div class="stock-list-return ${retClass}">${s.return_pct >= 0 ? '+' : ''}${s.return_pct}%</div>
+                        <span class="rank-profit down">${pct.toFixed(2)}%</span>
                     </div>`;
-                }
-                html += '</div></div>';
+                });
+                
+                html += '</div></div></div>';
             }
             
-            // 买不到的股票
-            if (data.unbuyable_list && data.unbuyable_list.length > 0) {
-                html += `<div class="section"><div class="section-title"><svg class="icon"><use href="#icon-ban"/></svg> 买不到的股票</div><div class="section-body">
-                    <div style="font-size:12px;color:#8b949e;margin-bottom:10px">已排除统计</div>`;
-                for (const s of data.unbuyable_list) {
-                    html += `<div class="stock-list-item">
-                        <div class="stock-list-left">
-                            <span class="stock-list-name">${s.name}</span>
-                            <span class="stock-list-code">${s.code}</span>
-                            <span class="stock-list-meta">${s.theme}</span>
+            // 无法买入的股票
+            const unbuyable = data.unbuyable_stocks || [];
+            if (unbuyable.length > 0) {
+                html += `
+                <div class="section">
+                    <div class="section-header">
+                        <svg class="icon" style="fill:#f39c12"><use href="#icon-warning"/></svg>
+                        <span class="section-title">无法买入 (${unbuyable.length}只)</span>
+                    </div>
+                    <div class="section-body">
+                        <div class="unbuyable-list">`;
+                
+                unbuyable.slice(0, 10).forEach(s => {
+                    const pct = s.change_pct || 0;
+                    html += `
+                    <div class="unbuyable-item">
+                        <div class="unbuyable-info">
+                            <span class="unbuyable-name">${s.stock_name}</span>
+                            <span class="unbuyable-reason">
+                                <svg class="icon icon-sm"><use href="#icon-warning"/></svg>
+                                ${s.unbuyable_reason || '无法买入'}
+                            </span>
                         </div>
-                        <div class="unbuyable-reason"><svg class="icon icon-sm"><use href="#icon-ban"/></svg> ${s.reason || '一字涨停'}</div>
+                        <span class="unbuyable-change ${pct >= 0 ? 'up' : 'down'}">${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%</span>
                     </div>`;
-                }
-                html += '</div></div>';
+                });
+                
+                html += '</div></div></div>';
             }
             
             document.getElementById('content').innerHTML = html;
         }
         
         async function updatePerformance() {
-            const btn = event.target.closest('.ctrl-btn');
+            const btn = document.querySelector('.update-btn');
             btn.disabled = true;
-            btn.innerHTML = '<svg class="icon icon-sm"><use href="#icon-refresh"/></svg> 更新中...';
             
             try {
                 const res = await fetch('/api/performance/update', { method: 'POST' });
                 const json = await res.json();
-                if (!json.success) throw new Error(json.error);
-                alert('收益更新完成！');
-                loadData(currentDays);
+                
+                if (json.success) {
+                    loadData();
+                } else {
+                    alert(json.error || '更新失败');
+                }
             } catch (e) {
-                alert('更新失败: ' + e.message);
+                alert('网络错误: ' + e.message);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<svg class="icon icon-sm"><use href="#icon-refresh"/></svg> 更新收益';
             }
         }
         
-        loadData(30);
+        loadData();
     </script>
 </body>
 </html>

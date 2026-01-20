@@ -9,76 +9,47 @@
         
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', sans-serif; 
-            background: #0d1117; 
+            background: #f5f6fa; 
             min-height: 100vh; 
-            color: #e6edf3;
-            padding-bottom: env(safe-area-inset-bottom);
+            color: #333;
+            padding-bottom: calc(70px + env(safe-area-inset-bottom));
         }
         
         .icon {
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             display: inline-block;
             vertical-align: middle;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
+            fill: currentColor;
         }
         
-        .icon-sm { width: 14px; height: 14px; }
-        .icon-lg { width: 20px; height: 20px; }
+        .icon-sm { width: 16px; height: 16px; }
+        .icon-lg { width: 24px; height: 24px; }
         
         /* 顶部导航 */
         .navbar {
             position: sticky;
             top: 0;
             z-index: 100;
-            background: rgba(13, 17, 23, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: #fff;
             padding: 12px 16px;
-        }
-        
-        .navbar-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 18px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #58a6ff, #a371f7);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+            padding-top: calc(12px + env(safe-area-inset-top));
+            box-shadow: 0 1px 0 rgba(0,0,0,0.05);
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
         }
         
-        .logo .icon { stroke: #58a6ff; width: 20px; height: 20px; }
-        
-        .nav-actions { display: flex; gap: 8px; align-items: center; }
-        
-        .nav-link {
-            color: #8b949e;
-            text-decoration: none;
-            font-size: 13px;
-            padding: 6px 10px;
-            border-radius: 6px;
-            transition: all 0.2s;
+        .nav-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #333;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
         }
         
-        .nav-link.active {
-            background: rgba(88, 166, 255, 0.15);
-            color: #58a6ff;
-        }
+        .nav-title .icon { fill: #e74c3c; }
         
         /* 主内容 */
         .container { padding: 12px; }
@@ -86,407 +57,511 @@
         .loading {
             text-align: center;
             padding: 60px 20px;
-            color: #8b949e;
+            color: #999;
         }
+        
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #e74c3c;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
         
         /* 报表列表 */
-        .reports-list { display: flex; flex-direction: column; gap: 10px; }
-        
-        .report-card {
-            background: #161b22;
-            border-radius: 12px;
-            padding: 14px 16px;
-            border: 1px solid rgba(255,255,255,0.08);
-            cursor: pointer;
-            transition: all 0.2s;
+        .report-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
-        .report-card:active { background: #1f2937; }
-        
-        .report-header {
+        .report-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .report-card:active { background: #fafafa; }
+        
+        .report-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
         
         .report-date {
-            font-size: 17px;
-            font-weight: 600;
-            color: #58a6ff;
-        }
-        
-        .report-market {
-            font-size: 13px;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        .report-market.up { background: rgba(248, 81, 73, 0.15); color: #f85149; }
-        .report-market.down { background: rgba(63, 185, 80, 0.15); color: #3fb950; }
-        
-        .report-stats {
-            display: flex;
-            gap: 16px;
-            font-size: 13px;
-            color: #8b949e;
-        }
-        
-        .report-stats span {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        /* 弹窗 */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
-            z-index: 1000;
-            overflow-y: auto;
-            padding: 0;
-        }
-        
-        .modal.active { display: block; }
-        
-        .modal-content {
-            background: #161b22;
-            min-height: 100vh;
-            padding: 16px;
-            padding-top: 60px;
-        }
-        
-        .modal-header {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            background: rgba(22, 27, 34, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 14px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            z-index: 10;
-        }
-        
-        .modal-title {
             font-size: 16px;
             font-weight: 600;
-            color: #58a6ff;
-        }
-        
-        .close-btn {
-            background: none;
-            border: none;
-            color: #8b949e;
-            cursor: pointer;
-            padding: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .close-btn .icon { width: 24px; height: 24px; }
-        
-        /* 题材区块 */
-        .theme-section { margin-bottom: 16px; }
-        
-        .theme-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #58a6ff;
-            padding: 10px 12px;
-            background: rgba(88, 166, 255, 0.1);
-            border-radius: 8px;
-            margin-bottom: 10px;
+            color: #333;
             display: flex;
             align-items: center;
             gap: 6px;
         }
         
-        .stock-row {
+        .report-date .icon { fill: #e74c3c; }
+        
+        .report-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .report-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .report-meta-item .icon { fill: #999; }
+        
+        .report-arrow {
+            color: #ccc;
+        }
+        
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 40px 20px;
+            color: #e74c3c;
+        }
+        
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid #f0f0f0;
+            padding: 8px 0;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom));
+            display: flex;
+            justify-content: space-around;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: #999;
+            font-size: 11px;
+            flex: 1;
+        }
+        
+        .nav-item.active {
+            color: #e74c3c;
+        }
+        
+        .nav-item .icon {
+            width: 22px;
+            height: 22px;
+        }
+        
+        .nav-item.active .icon { fill: #e74c3c; }
+        
+        /* 详情弹窗 */
+        .detail-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+        }
+        
+        .detail-modal.active { display: block; }
+        
+        .detail-panel {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #f5f6fa;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        
+        .detail-header {
+            background: #fff;
+            padding: 12px 16px;
+            padding-top: calc(12px + env(safe-area-inset-top));
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+        }
+        
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            background: #f5f6fa;
+            border-radius: 8px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #333;
+        }
+        
+        .detail-title {
+            flex: 1;
+            font-size: 17px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .detail-title .icon { fill: #e74c3c; }
+        
+        .detail-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+        
+        /* 题材卡片 - 毛玻璃效果 */
+        .theme-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .theme-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f5f5f5;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 12px;
-            background: rgba(255,255,255,0.02);
-            border-radius: 8px;
-            margin-bottom: 6px;
         }
         
-        .stock-info-left {
+        .theme-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
             display: flex;
             align-items: center;
-            gap: 8px;
-            flex: 1;
-            min-width: 0;
+            gap: 6px;
         }
         
-        .role-tag {
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 10px;
+        .theme-name .icon { fill: #f39c12; }
+        
+        .theme-change {
+            font-size: 16px;
             font-weight: 700;
+        }
+        
+        .up { color: #e74c3c; }
+        .down { color: #27ae60; }
+        
+        .stock-list { padding: 0; }
+        
+        .stock-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stock-item:last-child { border-bottom: none; }
+        
+        .stock-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stock-rank {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
             flex-shrink: 0;
         }
         
-        .role-leader { background: linear-gradient(135deg, #f85149, #da3633); color: #fff; }
-        .role-middle { background: linear-gradient(135deg, #58a6ff, #388bfd); color: #fff; }
-        .role-dip { background: linear-gradient(135deg, #3fb950, #2ea043); color: #fff; }
+        .rank-1 { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .rank-2 { background: linear-gradient(135deg, #f39c12, #d68910); }
+        .rank-3 { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        .rank-other { background: #bdc3c7; }
+        
+        .stock-name-wrap {
+            display: flex;
+            flex-direction: column;
+        }
         
         .stock-name {
             font-size: 14px;
-            font-weight: 500;
-            color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-weight: 600;
+            color: #333;
         }
         
         .stock-code {
             font-size: 11px;
-            color: #8b949e;
-            flex-shrink: 0;
+            color: #999;
         }
         
-        .unbuyable-tag {
-            background: rgba(248, 81, 73, 0.2);
-            color: #f85149;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 10px;
-            margin-left: 6px;
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-        }
-        
-        .stock-info-right {
+        .stock-unbuyable {
             display: flex;
             align-items: center;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-        
-        .stock-price {
-            font-size: 13px;
-            color: #8b949e;
-        }
-        
-        .stock-change {
-            font-size: 13px;
-            font-weight: 600;
-        }
-        
-        .up { color: #f85149; }
-        .down { color: #3fb950; }
-        
-        .score-badge {
-            background: rgba(88, 166, 255, 0.15);
-            color: #58a6ff;
+            gap: 4px;
+            font-size: 11px;
+            color: #f39c12;
+            background: #fff8e1;
             padding: 2px 6px;
             border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
         }
         
-        .empty { text-align: center; padding: 40px; color: #8b949e; }
-        .error { text-align: center; padding: 40px; color: #f85149; }
+        .stock-unbuyable .icon { fill: #f39c12; }
+        
+        .stock-change {
+            font-size: 15px;
+            font-weight: 700;
+        }
+        
+        .empty-stock {
+            text-align: center;
+            padding: 24px;
+            color: #999;
+        }
     </style>
 </head>
 <body>
-    <!-- SVG图标定义 -->
-    <svg style="display:none">
+    <!-- Google Material Icons -->
+    <svg style="display:none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-            <symbol id="icon-list" viewBox="0 0 24 24">
-                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+            <symbol id="icon-back" viewBox="0 0 24 24">
+                <path d="M11.67 3.87L9.9 2.1 0 12l9.9 9.9 1.77-1.77L3.54 12z"/>
             </symbol>
-            <symbol id="icon-chart" viewBox="0 0 24 24">
-                <path d="M3 3v18h18M9 17V9m4 8v-5m4 5V6"/>
+            <symbol id="icon-history" viewBox="0 0 24 24">
+                <path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0013 21a9 9 0 000-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
             </symbol>
-            <symbol id="icon-trending-up" viewBox="0 0 24 24">
-                <path d="M23 6l-9.5 9.5-5-5L1 18M17 6h6v6"/>
+            <symbol id="icon-calendar" viewBox="0 0 24 24">
+                <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
             </symbol>
-            <symbol id="icon-folder" viewBox="0 0 24 24">
-                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+            <symbol id="icon-fire" viewBox="0 0 24 24">
+                <path d="M12 12.9l-2.13 2.09c-.56.56-.87 1.29-.87 2.07C9 18.68 10.35 20 12 20s3-1.32 3-2.94c0-.78-.31-1.52-.87-2.07L12 12.9z"/>
+                <path d="M16 6l-.44.55C14.38 8.02 12 7.19 12 5.3V2S4 6 4 13c0 2.92 1.56 5.47 3.89 6.86-.56-.79-.89-1.76-.89-2.8 0-1.32.52-2.56 1.47-3.5L12 10.1l3.53 3.47c.95.93 1.47 2.17 1.47 3.5 0 1.02-.31 1.96-.85 2.75 1.89-1.15 3.29-3.06 3.71-5.3.66-3.55-1.07-6.9-3.86-8.52z"/>
             </symbol>
-            <symbol id="icon-file" viewBox="0 0 24 24">
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+            <symbol id="icon-category" viewBox="0 0 24 24">
+                <path d="M12 2l-5.5 9h11L12 2zm0 3.84L13.93 9h-3.87L12 5.84zM17.5 13c-2.49 0-4.5 2.01-4.5 4.5s2.01 4.5 4.5 4.5 4.5-2.01 4.5-4.5-2.01-4.5-4.5-4.5zm0 7c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5zM3 21.5h8v-8H3v8zm2-6h4v4H5v-4z"/>
             </symbol>
-            <symbol id="icon-x" viewBox="0 0 24 24">
-                <path d="M18 6L6 18M6 6l12 12"/>
+            <symbol id="icon-stock" viewBox="0 0 24 24">
+                <path d="M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-5 12H9v-2h6v2zm5-7H4V4h16v3z"/>
             </symbol>
-            <symbol id="icon-ban" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M4.93 4.93l14.14 14.14"/>
+            <symbol id="icon-warning" viewBox="0 0 24 24">
+                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+            </symbol>
+            <symbol id="icon-chevron-right" viewBox="0 0 24 24">
+                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+            </symbol>
+            <symbol id="icon-home" viewBox="0 0 24 24">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </symbol>
+            <symbol id="icon-analytics" viewBox="0 0 24 24">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
             </symbol>
         </defs>
     </svg>
 
     <nav class="navbar">
-        <div class="navbar-content">
-            <div class="logo">
-                <svg class="icon"><use href="#icon-list"/></svg>
-                历史报表
-            </div>
-            <div class="nav-actions">
-                <a href="/" class="nav-link">
-                    <svg class="icon icon-sm"><use href="#icon-chart"/></svg>
-                    推荐
-                </a>
-                <a href="/history" class="nav-link active">
-                    <svg class="icon icon-sm"><use href="#icon-list"/></svg>
-                    历史
-                </a>
-                <a href="/performance" class="nav-link">
-                    <svg class="icon icon-sm"><use href="#icon-trending-up"/></svg>
-                    收益
-                </a>
-            </div>
-        </div>
+        <span class="nav-title">
+            <svg class="icon"><use href="#icon-history"/></svg>
+            历史报表
+        </span>
     </nav>
     
     <div class="container">
-        <div id="content" class="loading">加载中...</div>
+        <div id="content">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <div>加载中...</div>
+            </div>
+        </div>
     </div>
     
-    <!-- 详情弹窗 -->
-    <div id="modal" class="modal">
-        <div class="modal-header">
-            <span class="modal-title" id="modalTitle">报表详情</span>
-            <button class="close-btn" onclick="closeModal()">
-                <svg class="icon"><use href="#icon-x"/></svg>
-            </button>
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <a href="/" class="nav-item">
+            <svg class="icon"><use href="#icon-home"/></svg>
+            <span>首页</span>
+        </a>
+        <a href="/history" class="nav-item active">
+            <svg class="icon"><use href="#icon-history"/></svg>
+            <span>历史</span>
+        </a>
+        <a href="/performance" class="nav-item">
+            <svg class="icon"><use href="#icon-analytics"/></svg>
+            <span>收益</span>
+        </a>
+    </div>
+    
+    <div id="detailModal" class="detail-modal" onclick="if(event.target===this)closeDetail()">
+        <div class="detail-panel">
+            <div class="detail-header">
+                <button class="close-btn" onclick="closeDetail()">
+                    <svg class="icon"><use href="#icon-back"/></svg>
+                </button>
+                <span class="detail-title">
+                    <svg class="icon"><use href="#icon-calendar"/></svg>
+                    <span id="detailDate">--</span>
+                </span>
+            </div>
+            <div class="detail-content" id="detailContent"></div>
         </div>
-        <div class="modal-content" id="modalContent"></div>
     </div>
 
     <script>
         async function loadReports() {
             try {
-                const res = await fetch('/api/reports?limit=30');
+                const res = await fetch('/api/reports');
                 const json = await res.json();
                 if (!json.success) throw new Error(json.error);
-                renderReports(json.data);
+                
+                if (json.data.length === 0) {
+                    document.getElementById('content').innerHTML = '<div class="empty">暂无历史报表</div>';
+                    return;
+                }
+                
+                let html = '<div class="report-list">';
+                for (const r of json.data) {
+                    html += `
+                    <div class="report-card" onclick="showDetail('${r.report_date}')">
+                        <div class="report-info">
+                            <span class="report-date">
+                                <svg class="icon icon-sm"><use href="#icon-calendar"/></svg>
+                                ${r.report_date}
+                            </span>
+                            <div class="report-meta">
+                                <span class="report-meta-item">
+                                    <svg class="icon icon-sm"><use href="#icon-category"/></svg>
+                                    ${r.themes_count} 个题材
+                                </span>
+                                <span class="report-meta-item">
+                                    <svg class="icon icon-sm"><use href="#icon-stock"/></svg>
+                                    ${r.stocks_count} 只股票
+                                </span>
+                            </div>
+                        </div>
+                        <span class="report-arrow">
+                            <svg class="icon"><use href="#icon-chevron-right"/></svg>
+                        </span>
+                    </div>`;
+                }
+                html += '</div>';
+                document.getElementById('content').innerHTML = html;
             } catch (e) {
                 document.getElementById('content').innerHTML = '<div class="error">' + e.message + '</div>';
             }
         }
         
-        function renderReports(reports) {
-            if (!reports || reports.length === 0) {
-                document.getElementById('content').innerHTML = '<div class="empty">暂无历史报表</div>';
+        async function showDetail(date) {
+            document.getElementById('detailDate').textContent = date;
+            document.getElementById('detailContent').innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+            document.getElementById('detailModal').classList.add('active');
+            
+            try {
+                const res = await fetch(`/api/reports/${date}`);
+                const json = await res.json();
+                if (!json.success) throw new Error(json.error);
+                
+                renderDetail(json.data);
+            } catch (e) {
+                document.getElementById('detailContent').innerHTML = '<div class="error">' + e.message + '</div>';
+            }
+        }
+        
+        function closeDetail() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+        
+        function renderDetail(data) {
+            // API返回的是report对象，包含themes字典
+            const themes = data.themes || {};
+            
+            if (!themes || Object.keys(themes).length === 0) {
+                document.getElementById('detailContent').innerHTML = '<div class="empty">暂无数据</div>';
                 return;
             }
             
-            let html = '<div class="reports-list">';
-            for (const r of reports) {
-                const mc = r.market_change || 0;
-                const mcClass = mc >= 0 ? 'up' : 'down';
-                const mcSign = mc >= 0 ? '+' : '';
-                
-                html += `
-                <div class="report-card" onclick="showDetail('${r.report_date}')">
-                    <div class="report-header">
-                        <div class="report-date">${r.report_date}</div>
-                        <div class="report-market ${mcClass}">大盘 ${mcSign}${mc.toFixed(2)}%</div>
-                    </div>
-                    <div class="report-stats">
-                        <span><svg class="icon icon-sm"><use href="#icon-folder"/></svg> ${r.themes_count}个题材</span>
-                        <span><svg class="icon icon-sm"><use href="#icon-file"/></svg> ${r.stocks_count}只股票</span>
-                    </div>
-                </div>`;
-            }
-            html += '</div>';
-            document.getElementById('content').innerHTML = html;
-        }
-        
-        async function showDetail(dateStr) {
-            const modal = document.getElementById('modal');
-            const modalContent = document.getElementById('modalContent');
-            const modalTitle = document.getElementById('modalTitle');
-            
-            modal.classList.add('active');
-            modalTitle.textContent = dateStr;
-            modalContent.innerHTML = '<div class="loading">加载中...</div>';
-            document.body.style.overflow = 'hidden';
-            
-            try {
-                const res = await fetch('/api/reports/' + dateStr);
-                const json = await res.json();
-                if (!json.success) throw new Error(json.error);
-                renderDetail(json.data);
-            } catch (e) {
-                modalContent.innerHTML = '<div class="error">' + e.message + '</div>';
-            }
-        }
-        
-        function renderDetail(report) {
-            const themes = report.themes || {};
             let html = '';
-            
             for (const [themeName, stocks] of Object.entries(themes)) {
-                html += `<div class="theme-section">
-                    <div class="theme-title">
-                        <svg class="icon icon-sm"><use href="#icon-folder"/></svg>
-                        ${themeName} (${stocks.length}只)
-                    </div>`;
+                html += `
+                <div class="theme-card">
+                    <div class="theme-header">
+                        <span class="theme-name">
+                            <svg class="icon icon-sm"><use href="#icon-fire"/></svg>
+                            ${themeName}
+                        </span>
+                    </div>
+                    <div class="stock-list">`;
                 
-                for (const s of stocks) {
-                    const changeClass = s.change_pct >= 0 ? 'up' : 'down';
-                    const changeSign = s.change_pct >= 0 ? '+' : '';
-                    
-                    let roleTag = '';
-                    if (s.role === '龙头') roleTag = '<span class="role-tag role-leader">龙头</span>';
-                    else if (s.role === '中军') roleTag = '<span class="role-tag role-middle">中军</span>';
-                    else if (s.role === '低吸') roleTag = '<span class="role-tag role-dip">低吸</span>';
-                    
-                    let unbuyableTag = '';
-                    if (s.is_buyable === 0 || s.unbuyable_reason) {
-                        unbuyableTag = `<span class="unbuyable-tag"><svg class="icon icon-sm"><use href="#icon-ban"/></svg>${s.unbuyable_reason || '买不到'}</span>`;
-                    }
-                    
-                    html += `
-                    <div class="stock-row">
-                        <div class="stock-info-left">
-                            ${roleTag}
-                            <span class="stock-name">${s.stock_name}</span>
-                            <span class="stock-code">${s.stock_code}</span>
-                            ${unbuyableTag}
-                        </div>
-                        <div class="stock-info-right">
-                            <span class="stock-price">¥${s.recommend_price.toFixed(2)}</span>
-                            <span class="stock-change ${changeClass}">${changeSign}${s.change_pct.toFixed(2)}%</span>
-                            <span class="score-badge">${s.score}分</span>
-                        </div>
-                    </div>`;
+                if (!stocks || stocks.length === 0) {
+                    html += '<div class="empty-stock">暂无股票</div>';
+                } else {
+                    stocks.forEach((s, idx) => {
+                        const sc = s.change_pct || 0;
+                        const scc = sc >= 0 ? 'up' : 'down';
+                        const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : 'rank-other';
+                        
+                        let unbuyable = '';
+                        if (s.is_buyable === false || s.is_buyable === 0) {
+                            unbuyable = `<span class="stock-unbuyable"><svg class="icon icon-sm"><use href="#icon-warning"/></svg>${s.unbuyable_reason || '无法买入'}</span>`;
+                        }
+                        
+                        html += `
+                        <div class="stock-item">
+                            <div class="stock-left">
+                                <span class="stock-rank ${rankClass}">${idx + 1}</span>
+                                <div class="stock-name-wrap">
+                                    <span class="stock-name">${s.stock_name}</span>
+                                    <span class="stock-code">${s.stock_code}</span>
+                                </div>
+                                ${unbuyable}
+                            </div>
+                            <span class="stock-change ${scc}">${sc >= 0 ? '+' : ''}${sc.toFixed(2)}%</span>
+                        </div>`;
+                    });
                 }
                 
-                html += '</div>';
+                html += '</div></div>';
             }
             
-            document.getElementById('modalContent').innerHTML = html || '<div class="empty">无数据</div>';
+            document.getElementById('detailContent').innerHTML = html;
         }
-        
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-            document.body.style.overflow = '';
-        }
-        
-        document.getElementById('modal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
-        
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeModal();
-        });
         
         loadReports();
     </script>
