@@ -1,4 +1,5 @@
 # 主入口文件
+import os
 from flask import Flask
 from routes import api
 from database import init_database
@@ -19,9 +20,10 @@ if __name__ == '__main__':
     
     app = create_app()
     
-    # 启动飞书定时推送任务（每天20:00）
-    from feishu_pusher import start_scheduler
-    start_scheduler()
+    # 只在主进程启动定时任务（避免debug模式下重复启动）
+    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not app.debug:
+        from feishu_pusher import start_scheduler
+        start_scheduler()
     
     # 启动收益跟踪定时任务（每天15:30）
     from performance_tracker import start_performance_scheduler

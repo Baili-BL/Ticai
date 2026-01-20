@@ -11,6 +11,9 @@ import threading
 # 飞书Webhook地址
 FEISHU_WEBHOOK_URL = "https://open.feishu.cn/open-apis/bot/v2/hook/4dbfb98d-927c-4937-b513-c82605b75c15"
 
+# 飞书表格链接
+FEISHU_SHEET_URL = "https://my.feishu.cn/wiki/QBo5wC0LliWwI8kOGG4cJ0ghnNf"
+
 
 def send_feishu_text(text: str) -> bool:
     """发送纯文本消息到飞书"""
@@ -124,6 +127,13 @@ def build_daily_report(theme_data: Dict, market_change: float = 0) -> tuple:
     
     content = []
     
+    # 飞书表格链接置顶
+    content.append([
+        {"tag": "text", "text": "📋 查看历史数据: "},
+        {"tag": "a", "text": "飞书表格", "href": FEISHU_SHEET_URL},
+        {"tag": "text", "text": "\n"},
+    ])
+    
     theme_count = len(theme_data)
     content.append([
         {"tag": "text", "text": f"今日共监控 {theme_count} 个热门题材\n"},
@@ -192,6 +202,13 @@ def push_daily_stock_report():
         
         if success:
             print(f"✅ 每日股票报告推送成功!")
+            
+            # 同时保存到飞书表格
+            try:
+                from feishu_sheet import save_stock_data_to_sheet
+                save_stock_data_to_sheet()
+            except Exception as e:
+                print(f"⚠️ 保存到表格失败: {e}")
         else:
             print(f"❌ 每日股票报告推送失败!")
             
@@ -209,19 +226,23 @@ def push_daily_stock_report():
 def start_scheduler():
     """
     启动定时任务调度器
-    每天20:00推送股票报告
     """
-    # 设置每天20:00执行
+    # 清除旧任务
+    schedule.clear()
+    
+    # 每天11:00推送（午盘）
+    schedule.every().day.at("11:00").do(push_daily_stock_report)
+    # 每天20:00推送（收盘总结）
     schedule.every().day.at("20:00").do(push_daily_stock_report)
     
-    print(f"📅 定时任务已设置: 每天 20:00 推送股票日报到飞书")
+    print(f"📅 定时任务已设置: 11:00、20:00 推送股票日报")
+    print(f"📅 当前时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
     def run_scheduler():
         while True:
             schedule.run_pending()
-            time.sleep(60)  # 每分钟检查一次
+            time.sleep(30)
     
-    # 在后台线程运行调度器
     scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
     scheduler_thread.start()
     

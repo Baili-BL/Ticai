@@ -254,8 +254,8 @@ def fetch_theme_stocks(theme_code: str, theme_name: str) -> list:
                 code = item.get("f12", "")
                 if not code:
                     continue
-                # 过滤科创板（68开头）
-                if code.startswith("68"):
+                # 过滤科创板（68开头）和深圳创业板/中小板（3开头）
+                if code.startswith("68") or code.startswith("3"):
                     continue
                 stocks.append({
                     "code": code,
