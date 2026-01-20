@@ -2,179 +2,1040 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>A股热门题材推荐</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; padding: 8px 4px; color: #fff; }
-        .container { max-width: 100%; margin: 0 auto; padding: 0 2px; }
-        .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-        .header-left { flex: 1; min-width: 200px; }
-        .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .update-time-top { color: #888; font-size: 12px; }
-        h1 { text-align: left; margin-bottom: 8px; font-size: 22px; background: linear-gradient(90deg, #00d4ff, #7b2cbf); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-        .subtitle { text-align: left; color: #888; font-size: 13px; line-height: 1.4; }
-        .loading { text-align: center; padding: 50px; color: #888; font-size: 16px; }
-        .themes { display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 0; }
-        .themes.pc-mode { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0; }
-        .theme-card { background: rgba(255,255,255,0.05); border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); width: 100%; }
-        .theme-header { background: linear-gradient(135deg, rgba(123,44,191,0.8), rgba(0,212,255,0.6)); padding: 12px; display: block; position: relative; }
-        .theme-header.pc-mode { display: flex; justify-content: space-between; align-items: center; position: static; }
-        .theme-name { font-size: 15px; font-weight: 600; display: block; margin-bottom: 5px; padding-right: 65px; }
-        .theme-name.pc-mode { padding-right: 0; }
-        .theme-stats { font-size: 11px; opacity: 0.9; margin-top: 3px; }
-        .theme-change { font-size: 15px; font-weight: bold; padding: 3px 8px; border-radius: 5px; background: rgba(0,0,0,0.2); position: absolute; top: 12px; right: 12px; }
-        .theme-change.pc-mode { position: static; }
-        .emotion-label { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
-        .stock-list { padding: 10px; }
-        .stock-item { display: block; padding: 10px; border-radius: 8px; margin-bottom: 8px; background: rgba(255,255,255,0.03); }
-        .stock-item.pc-mode { display: flex; justify-content: space-between; align-items: center; }
-        .stock-item:last-child { margin-bottom: 0; }
-        .stock-info { flex: 1; margin-bottom: 8px; }
-        .stock-info.pc-mode { margin-bottom: 0; }
-        .stock-name { font-weight: 600; color: #fff; font-size: 14px; }
-        .stock-code { color: #888; font-size: 11px; margin-left: 6px; }
-        .stock-meta { font-size: 10px; color: #666; margin-top: 5px; }
-        .stock-meta span { margin-right: 8px; display: inline-block; }
-        .stock-price { text-align: left; display: flex; align-items: center; gap: 10px; }
-        .stock-price.pc-mode { text-align: right; display: block; min-width: 85px; }
-        .price-value { font-size: 16px; font-weight: bold; }
-        .price-change { font-size: 12px; }
-        .up { color: #ff4757; }
-        .down { color: #2ed573; }
-        .score-badge { display: inline-block; background: rgba(0,212,255,0.2); color: #00d4ff; padding: 2px 6px; border-radius: 4px; font-size: 10px; }
-        .signal-row { display: flex; align-items: center; gap: 6px; margin-top: 5px; flex-wrap: wrap; }
-        .signal-text { font-size: 10px; color: #ffa502; }
-        .tag { display: inline-block; padding: 2px 5px; border-radius: 3px; font-size: 9px; margin-left: 3px; }
-        .tag-special { background: rgba(255,71,87,0.3); color: #ff4757; font-weight: bold; }
-        .tag-leader { background: linear-gradient(135deg, #ff4757, #ff6b81); color: #fff; font-weight: bold; }
-        .role-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-right: 5px; }
-        .role-leader { background: linear-gradient(135deg, #ff4757, #ff6b81); color: #fff; }
-        .role-middle { background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; }
-        .role-dip { background: linear-gradient(135deg, #2ed573, #26de81); color: #fff; }
-        .stock-tags { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px; }
-        .buy-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-left: 5px; }
-        .strong-buy { background: linear-gradient(135deg, #ff4757, #ff6b81); color: #fff; }
-        .can-buy { background: rgba(46,213,115,0.2); color: #2ed573; border: 1px solid #2ed573; }
-        .watch { background: rgba(255,165,2,0.15); color: #ffa502; }
-        .highlight-stock { background: rgba(255,71,87,0.08) !important; border-left: 3px solid #ff4757; }
-        .emotion-row { display: flex; align-items: center; gap: 5px; margin-top: 3px; font-size: 10px; color: #aaa; }
-        .refresh-btn { padding: 7px 14px; background: linear-gradient(135deg, #7b2cbf, #00d4ff); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', sans-serif; 
+            background: #0d1117; 
+            min-height: 100vh; 
+            color: #e6edf3;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* SVG图标基础样式 */
+        .icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: middle;
+            fill: currentColor;
+        }
+        
+        .icon-sm { width: 14px; height: 14px; }
+        .icon-lg { width: 20px; height: 20px; }
+        
+        /* 顶部导航 */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 12px 16px;
+        }
+        
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #58a6ff, #a371f7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo .icon {
+            width: 22px;
+            height: 22px;
+            fill: #58a6ff;
+        }
+        
+        .nav-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: #8b949e;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .nav-link:active { background: rgba(255,255,255,0.1); }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #238636, #2ea043);
+            color: #fff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
         .refresh-btn:disabled { opacity: 0.5; }
-        .mode-btn { padding: 7px 10px; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer; font-size: 11px; }
-        .mode-btn.active { background: rgba(0,212,255,0.2); border-color: #00d4ff; }
-        .quality-tags { display: flex; gap: 3px; margin-top: 3px; flex-wrap: wrap; }
-        .quality-tag { display: inline-block; padding: 2px 5px; border-radius: 3px; font-size: 9px; font-weight: bold; }
-        .quality-big { background: rgba(255,193,7,0.2); color: #ffc107; }
-        .quality-new { background: rgba(0,212,255,0.2); color: #00d4ff; }
-        .quality-strong { background: rgba(255,71,87,0.2); color: #ff4757; }
-        .news-tag { display: inline-block; padding: 2px 5px; border-radius: 4px; font-size: 9px; font-weight: bold; margin-left: 3px; }
-        .news-positive { background: rgba(46,213,115,0.2); color: #2ed573; }
-        .news-negative { background: rgba(255,71,87,0.2); color: #ff4757; }
-        .error { color: #ff4757; padding: 20px; text-align: center; background: rgba(255,71,87,0.1); border-radius: 8px; }
-        .empty-stock { color: #666; padding: 15px; text-align: center; }
+        .refresh-btn:active { transform: scale(0.96); }
+        
+        /* 状态栏 */
+        .status-bar {
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #8b949e;
+        }
+        
+        .market-change { font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        .market-change.up { color: #f85149; }
+        .market-change.down { color: #3fb950; }
+        
+        /* 主内容区 */
+        .container { padding: 12px; }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8b949e;
+        }
+        
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(88, 166, 255, 0.2);
+            border-top-color: #58a6ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* 题材卡片 */
+        .themes { display: flex; flex-direction: column; gap: 12px; }
+        
+        .theme-card {
+            background: #161b22;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        
+        .theme-header {
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(88, 166, 255, 0.15), rgba(163, 113, 247, 0.1));
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .theme-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .theme-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .theme-change {
+            font-size: 16px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.3);
+        }
+        
+        .theme-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: #8b949e;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .theme-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .theme-meta-item .icon { width: 12px; height: 12px; }
+        
+        /* 标签样式 */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .emotion-tag {
+            background: rgba(163, 113, 247, 0.2);
+            color: #a371f7;
+        }
+        
+        .news-good { background: rgba(63, 185, 80, 0.2); color: #3fb950; }
+        .news-bad { background: rgba(248, 81, 73, 0.2); color: #f85149; }
+        
+        .quality-tag { margin-right: 4px; }
+        .quality-big { background: rgba(255, 193, 7, 0.2); color: #f0b429; }
+        .quality-new { background: rgba(88, 166, 255, 0.2); color: #58a6ff; }
+        .quality-strong { background: rgba(248, 81, 73, 0.2); color: #f85149; }
+        
+        /* 股票列表 */
+        .stock-list { padding: 8px; }
+        
+        .stock-item {
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .stock-item:last-child { margin-bottom: 0; }
+        .stock-item:active { background: rgba(255,255,255,0.05); }
+        .stock-item:hover { background: rgba(255,255,255,0.04); }
+        .stock-item.highlight { background: rgba(248, 81, 73, 0.08); border-color: rgba(248, 81, 73, 0.3); }
+        
+        .stock-row-1 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .stock-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .role-tag {
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .role-leader { background: linear-gradient(135deg, #f85149, #da3633); color: #fff; }
+        .role-middle { background: linear-gradient(135deg, #58a6ff, #388bfd); color: #fff; }
+        .role-dip { background: linear-gradient(135deg, #3fb950, #2ea043); color: #fff; }
+        
+        .stock-name-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+        }
+        
+        .stock-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .stock-code {
+            font-size: 11px;
+            color: #8b949e;
+            flex-shrink: 0;
+        }
+        
+        .buy-tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .buy-strong { background: linear-gradient(135deg, #f85149, #da3633); color: #fff; }
+        .buy-ok { background: rgba(63, 185, 80, 0.2); color: #3fb950; border: 1px solid rgba(63, 185, 80, 0.4); }
+        .buy-watch { background: rgba(255, 165, 2, 0.15); color: #f0b429; }
+        
+        .stock-price {
+            text-align: right;
+            flex-shrink: 0;
+        }
+        
+        .price-value {
+            font-size: 17px;
+            font-weight: 700;
+        }
+        
+        .price-change {
+            font-size: 12px;
+            margin-top: 2px;
+        }
+        
+        .up { color: #f85149; }
+        .down { color: #3fb950; }
+        
+        .stock-row-2 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stock-tags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+        
+        .stock-tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 500;
+            background: rgba(255,255,255,0.08);
+            color: #8b949e;
+        }
+        
+        .stock-tag.special {
+            background: rgba(248, 81, 73, 0.2);
+            color: #f85149;
+        }
+        
+        .stock-tag.leader-tag {
+            background: linear-gradient(135deg, rgba(248, 81, 73, 0.3), rgba(218, 54, 51, 0.2));
+            color: #f85149;
+        }
+        
+        .stock-score {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .score-badge {
+            background: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .signal-text {
+            font-size: 11px;
+            color: #f0b429;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 40px 20px;
+            color: #f85149;
+            background: rgba(248, 81, 73, 0.1);
+            border-radius: 12px;
+        }
+        
+        .empty-stock {
+            text-align: center;
+            padding: 20px;
+            color: #8b949e;
+            font-size: 13px;
+        }
+        
+        /* 底部安全区域 */
+        .bottom-space { height: 20px; }
+        
+        /* K线图弹窗 */
+        .kline-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            padding: 0;
+        }
+        
+        .kline-modal.active { display: flex; flex-direction: column; }
+        
+        .kline-header {
+            background: #161b22;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            flex-shrink: 0;
+        }
+        
+        .kline-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .kline-stock-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .kline-stock-code {
+            font-size: 13px;
+            color: #8b949e;
+        }
+        
+        .kline-close {
+            background: none;
+            border: none;
+            color: #8b949e;
+            cursor: pointer;
+            padding: 4px;
+        }
+        
+        .kline-close .icon { width: 24px; height: 24px; }
+        
+        .kline-controls {
+            background: #161b22;
+            padding: 10px 16px;
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0;
+            overflow-x: auto;
+        }
+        
+        .kline-btn {
+            flex-shrink: 0;
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.05);
+            color: #8b949e;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .kline-btn.active {
+            background: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+            border-color: #58a6ff;
+        }
+        
+        .kline-container {
+            flex: 1;
+            background: #0d1117;
+            position: relative;
+            min-height: 300px;
+        }
+        
+        .kline-loading {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #8b949e;
+            text-align: center;
+        }
+        
+        .kline-info {
+            background: #161b22;
+            padding: 12px 16px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            flex-shrink: 0;
+        }
+        
+        .kline-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .kline-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .kline-stat-label { color: #8b949e; }
+        .kline-stat-value { font-weight: 600; }
+        .kline-stat-value.up { color: #f85149; }
+        .kline-stat-value.down { color: #3fb950; }
     </style>
-</head><body>
-    <div class="container">
-        <div class="header-row">
-            <div class="header-left">
-                <h1>A股热门题材推荐</h1>
-                <p class="subtitle">实时追踪市场热点</p>
+    <!-- Lightweight Charts -->
+    <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+    <!-- SVG图标定义 -->
+    <svg style="display:none">
+        <defs>
+            <symbol id="icon-chart" viewBox="0 0 24 24">
+                <path d="M3 3v18h18M9 17V9m4 8v-5m4 5V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </symbol>
+            <symbol id="icon-list" viewBox="0 0 24 24">
+                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </symbol>
+            <symbol id="icon-trending-up" viewBox="0 0 24 24">
+                <path d="M23 6l-9.5 9.5-5-5L1 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M17 6h6v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </symbol>
+            <symbol id="icon-trending-down" viewBox="0 0 24 24">
+                <path d="M23 18l-9.5-9.5-5 5L1 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M17 18h6v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </symbol>
+            <symbol id="icon-fire" viewBox="0 0 24 24">
+                <path d="M12 2c.5 2.5 2.5 4 4 5.5 2 2 2.5 5.5 1 8-1 1.5-2.5 2.5-4.5 2.5-3 0-5.5-2.5-5.5-5.5 0-2 1-4 2.5-5.5.5-.5 1-1.5 1-2.5 0 0 .5 1 1.5 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </symbol>
+            <symbol id="icon-refresh" viewBox="0 0 24 24">
+                <path d="M23 4v6h-6M1 20v-6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </symbol>
+            <symbol id="icon-clock" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </symbol>
+            <symbol id="icon-x" viewBox="0 0 24 24">
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </symbol>
+            <symbol id="icon-candlestick" viewBox="0 0 24 24">
+                <path d="M9 4v4M9 14v6M15 4v6M15 16v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                <rect x="7" y="8" width="4" height="6" rx="1" stroke="currentColor" stroke-width="2" fill="none"/>
+                <rect x="13" y="10" width="4" height="6" rx="1" stroke="currentColor" stroke-width="2" fill="none"/>
+            </symbol>
+        </defs>
+    </svg>
+
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <svg class="icon"><use href="#icon-chart"/></svg>
+                题材雷达
             </div>
-            <div class="header-right">
-                <button class="mode-btn active" id="modeBtn" onclick="toggleMode()">移动端</button>
-                <span class="update-time-top" id="updateTime"></span>
-                <button class="refresh-btn" onclick="loadData()">刷新</button>
+            <div class="nav-actions">
+                <a href="/history" class="nav-link">
+                    <svg class="icon icon-sm"><use href="#icon-list"/></svg>
+                    历史
+                </a>
+                <a href="/performance" class="nav-link">
+                    <svg class="icon icon-sm"><use href="#icon-trending-up"/></svg>
+                    收益
+                </a>
+                <button class="refresh-btn" onclick="loadData()">
+                    <svg class="icon icon-sm"><use href="#icon-refresh"/></svg>
+                    刷新
+                </button>
             </div>
         </div>
-        <div id="content" class="loading">正在获取数据...</div>
+    </nav>
+    
+    <div class="status-bar">
+        <span id="updateTime">--</span>
+        <span class="market-change" id="marketChange">大盘 --</span>
     </div>
+    
+    <div class="container">
+        <div id="content">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <div>正在获取数据...</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bottom-space"></div>
+    
+    <!-- K线图弹窗 -->
+    <div id="klineModal" class="kline-modal">
+        <div class="kline-header">
+            <div class="kline-title">
+                <svg class="icon"><use href="#icon-candlestick"/></svg>
+                <span class="kline-stock-name" id="klineStockName">--</span>
+                <span class="kline-stock-code" id="klineStockCode">--</span>
+            </div>
+            <button class="kline-close" onclick="closeKline()">
+                <svg class="icon"><use href="#icon-x"/></svg>
+            </button>
+        </div>
+        <div class="kline-controls">
+            <button class="kline-btn" data-days="20">20日</button>
+            <button class="kline-btn" data-days="60">60日</button>
+            <button class="kline-btn active" data-days="120">120日</button>
+            <button class="kline-btn" data-days="250">250日</button>
+        </div>
+        <div class="kline-container" id="klineChart">
+            <div class="kline-loading">
+                <div class="loading-spinner"></div>
+                <div>加载K线数据...</div>
+            </div>
+        </div>
+        <div class="kline-info">
+            <div class="kline-stats" id="klineStats">
+                <span class="kline-stat"><span class="kline-stat-label">开:</span> <span class="kline-stat-value" id="kOpen">--</span></span>
+                <span class="kline-stat"><span class="kline-stat-label">高:</span> <span class="kline-stat-value up" id="kHigh">--</span></span>
+                <span class="kline-stat"><span class="kline-stat-label">低:</span> <span class="kline-stat-value down" id="kLow">--</span></span>
+                <span class="kline-stat"><span class="kline-stat-label">收:</span> <span class="kline-stat-value" id="kClose">--</span></span>
+                <span class="kline-stat" style="margin-left:auto"><span style="color:#ffffff">━</span> MA5</span>
+                <span class="kline-stat"><span style="color:#f7b924">━</span> MA10</span>
+                <span class="kline-stat"><span style="color:#ab47bc">━</span> MA20</span>
+            </div>
+        </div>
+    </div>
+
     <script>
-        let isPcMode = false;
-        function toggleMode() {
-            isPcMode = !isPcMode;
-            document.getElementById('modeBtn').textContent = isPcMode ? 'PC端' : '移动端';
-            document.getElementById('modeBtn').classList.toggle('active', !isPcMode);
-            applyMode();
-        }
-        function applyMode() {
-            const t = document.querySelector('.themes');
-            if (t) t.classList.toggle('pc-mode', isPcMode);
-            document.querySelectorAll('.theme-header,.theme-name,.theme-change,.stock-item,.stock-info,.stock-price').forEach(el => el.classList.toggle('pc-mode', isPcMode));
-        }
+        // SVG图标模板
+        const icons = {
+            fire: '<svg class="icon icon-sm" style="color:#f0b429"><use href="#icon-fire"/></svg>',
+            up: '<svg class="icon icon-sm" style="color:#f85149"><use href="#icon-trending-up"/></svg>',
+            down: '<svg class="icon icon-sm" style="color:#3fb950"><use href="#icon-trending-down"/></svg>',
+        };
+        
         async function loadData() {
             const content = document.getElementById('content');
             const btn = document.querySelector('.refresh-btn');
-            content.innerHTML = '<div class="loading">加载中...</div>';
+            
+            content.innerHTML = '<div class="loading"><div class="loading-spinner"></div><div>加载中...</div></div>';
             btn.disabled = true;
+            btn.innerHTML = '<svg class="icon icon-sm"><use href="#icon-refresh"/></svg> 加载中';
+            
             try {
                 const res = await fetch('/api/all?t=' + Date.now());
                 const json = await res.json();
                 if (!json.success) throw new Error(json.error);
+                
                 renderData(json.data);
-                document.getElementById('updateTime').textContent = new Date().toLocaleString();
+                
+                // 更新状态栏
+                document.getElementById('updateTime').textContent = new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
+                
+                const mc = json.market_change || 0;
+                const mcEl = document.getElementById('marketChange');
+                mcEl.innerHTML = (mc >= 0 ? icons.up : icons.down) + ' 大盘 ' + (mc >= 0 ? '+' : '') + mc.toFixed(2) + '%';
+                mcEl.className = 'market-change ' + (mc >= 0 ? 'up' : 'down');
+                
             } catch (e) {
                 content.innerHTML = '<div class="error">' + e.message + '</div>';
             } finally {
                 btn.disabled = false;
+                btn.innerHTML = '<svg class="icon icon-sm"><use href="#icon-refresh"/></svg> 刷新';
             }
         }
+        
         function renderData(data) {
-            if (!data || Object.keys(data).length === 0) { document.getElementById('content').innerHTML = '<div class="error">暂无数据</div>'; return; }
+            if (!data || Object.keys(data).length === 0) {
+                document.getElementById('content').innerHTML = '<div class="error">暂无数据</div>';
+                return;
+            }
+            
             let html = '<div class="themes">';
+            
             for (const [theme, td] of Object.entries(data)) {
-                const info = td.info || {}, stocks = td.stocks || [], emotion = td.emotion || {}, quality = td.quality || {}, news = td.news || {};
-                const hotScore = td.hot_score || 0, themeChange = info.change_pct || 0;
+                const info = td.info || {};
+                const stocks = td.stocks || [];
+                const emotion = td.emotion || {};
+                const quality = td.quality || {};
+                const news = td.news || {};
+                const hotScore = td.hot_score || 0;
+                const themeChange = info.change_pct || 0;
                 const changeClass = themeChange >= 0 ? 'up' : 'down';
-                const emotionStage = emotion.stage || '', emotionColor = emotion.color || '#6c757d', emotionAdvice = emotion.advice || '';
-                const emotionLabel = emotionStage ? '<span class="emotion-label" style="background:'+emotionColor+'33;color:'+emotionColor+'">'+emotionStage+'</span>' : '';
-                let newsLabel = '';
-                if (news.level === '利好') newsLabel = '<span class="news-tag news-positive">利好</span>';
-                else if (news.level === '利空') newsLabel = '<span class="news-tag news-negative">利空</span>';
+                
+                // 题材标签
+                let themeTags = '';
+                if (emotion.stage) {
+                    themeTags += `<span class="tag emotion-tag">${emotion.stage}</span>`;
+                }
+                if (news.level === '利好') {
+                    themeTags += '<span class="tag news-good">利好</span>';
+                } else if (news.level === '利空') {
+                    themeTags += '<span class="tag news-bad">利空</span>';
+                }
+                
+                // 质量标签
                 let qualityTags = '';
                 if (quality.tags && quality.tags.length > 0) {
-                    qualityTags = '<div class="quality-tags">';
                     for (const tag of quality.tags) {
                         const tn = tag.name || tag;
-                        let tc = tn.includes('大')?'quality-big':tn.includes('新')?'quality-new':'quality-strong';
-                        qualityTags += '<span class="quality-tag '+tc+'">'+tn+'</span>';
+                        let tc = tn.includes('大') ? 'quality-big' : tn.includes('新') ? 'quality-new' : 'quality-strong';
+                        qualityTags += `<span class="tag quality-tag ${tc}">${tn}</span>`;
                     }
-                    qualityTags += '</div>';
                 }
-                html += '<div class="theme-card"><div class="theme-header"><div><div class="theme-name">'+theme+' '+emotionLabel+newsLabel+'</div>';
-                html += '<div class="theme-stats">涨'+info.up_count+' 跌'+info.down_count+' 热度'+hotScore.toFixed(0)+'</div>'+qualityTags;
-                html += (emotionAdvice?'<div class="emotion-row">'+emotionAdvice+'</div>':'')+'</div>';
-                html += '<div class="theme-change '+changeClass+'">'+(themeChange>=0?'+':'')+themeChange.toFixed(2)+'%</div></div><div class="stock-list">';
-                if (stocks.length === 0) html += '<div class="empty-stock">暂无</div>';
-                else {
+                
+                html += `
+                <div class="theme-card">
+                    <div class="theme-header">
+                        <div class="theme-top">
+                            <div class="theme-name">${theme} ${themeTags}</div>
+                            <div class="theme-change ${changeClass}">${themeChange >= 0 ? '+' : ''}${themeChange.toFixed(2)}%</div>
+                        </div>
+                        <div class="theme-meta">
+                            <span class="theme-meta-item">${icons.fire} ${hotScore.toFixed(0)}</span>
+                            <span class="theme-meta-item">${icons.up} ${info.up_count || 0}</span>
+                            <span class="theme-meta-item">${icons.down} ${info.down_count || 0}</span>
+                            ${qualityTags}
+                        </div>
+                    </div>
+                    <div class="stock-list">`;
+                
+                if (stocks.length === 0) {
+                    html += '<div class="empty-stock">暂无推荐</div>';
+                } else {
                     for (const s of stocks) {
-                        if (s.error) { html += '<div class="stock-item"><div class="stock-info"><span class="stock-name">'+(s.name||s.code)+'</span></div></div>'; continue; }
-                        const cn = s.change_pct_num||0, cc = cn>=0?'up':'down';
-                        let tags = [];
-                        if (s.is_first_limit) tags.push('<span class="tag tag-leader">率先涨停</span>');
-                        if (s.is_weak_to_strong) tags.push('<span class="tag tag-special">弱转强</span>');
-                        let bt='';
-                        if(s.score>=90) bt='<span class="buy-tag strong-buy">强烈推荐</span>';
-                        else if(s.score>=80) bt='<span class="buy-tag can-buy">可买入</span>';
-                        else if(s.score>=70) bt='<span class="buy-tag watch">观察</span>';
-                        let roleTag='';
-                        if(s.role==='龙头') roleTag='<span class="role-tag role-leader">龙头</span>';
-                        else if(s.role==='中军') roleTag='<span class="role-tag role-middle">中军</span>';
-                        else if(s.role==='低吸') roleTag='<span class="role-tag role-dip">低吸</span>';
-                        html += '<div class="stock-item '+(s.score>=90?'highlight-stock':'')+'"><div class="stock-info">'+roleTag+'<span class="stock-name">'+s.name+'</span><span class="stock-code">'+s.code+'</span>'+bt;
-                        html += (tags.length?'<div class="stock-tags">'+tags.join('')+'</div>':'');
-                        html += '<div class="stock-meta"><span>量能'+s.volume_level+'</span><span>换手'+(s.turnover_rate||'-')+'</span></div>';
-                        html += '<div class="signal-row"><span class="score-badge">'+s.score+'分</span><span class="signal-text">'+s.signal+'</span></div></div>';
-                        html += '<div class="stock-price"><div class="price-value '+cc+'">'+s.price+'</div><div class="price-change '+cc+'">'+s.change_pct+'</div></div></div>';
+                        if (s.error) continue;
+                        
+                        const cn = s.change_pct_num || 0;
+                        const cc = cn >= 0 ? 'up' : 'down';
+                        const isHighlight = s.score >= 90;
+                        
+                        // 角色标签
+                        let roleTag = '';
+                        if (s.role === '龙头') roleTag = '<span class="role-tag role-leader">龙头</span>';
+                        else if (s.role === '中军') roleTag = '<span class="role-tag role-middle">中军</span>';
+                        else if (s.role === '低吸') roleTag = '<span class="role-tag role-dip">低吸</span>';
+                        
+                        // 买入标签
+                        let buyTag = '';
+                        if (s.score >= 90) buyTag = '<span class="buy-tag buy-strong">强推</span>';
+                        else if (s.score >= 80) buyTag = '<span class="buy-tag buy-ok">可买</span>';
+                        else if (s.score >= 70) buyTag = '<span class="buy-tag buy-watch">观察</span>';
+                        
+                        // 特殊标签
+                        let specialTags = '';
+                        if (s.is_first_limit) specialTags += '<span class="stock-tag leader-tag">率先涨停</span>';
+                        if (s.is_weak_to_strong) specialTags += '<span class="stock-tag special">弱转强</span>';
+                        if (s.volume_level) specialTags += `<span class="stock-tag">${s.volume_level}</span>`;
+                        if (s.turnover_rate && s.turnover_rate !== '-') specialTags += `<span class="stock-tag">换${s.turnover_rate}</span>`;
+                        
+                        html += `
+                        <div class="stock-item ${isHighlight ? 'highlight' : ''}" onclick="showKline('${s.code}', '${s.name}')">
+                            <div class="stock-row-1">
+                                <div class="stock-left">
+                                    ${roleTag}
+                                    <div class="stock-name-wrap">
+                                        <span class="stock-name">${s.name}</span>
+                                        <span class="stock-code">${s.code}</span>
+                                    </div>
+                                    ${buyTag}
+                                </div>
+                                <div class="stock-price">
+                                    <div class="price-value ${cc}">${s.price}</div>
+                                    <div class="price-change ${cc}">${s.change_pct}</div>
+                                </div>
+                            </div>
+                            <div class="stock-row-2">
+                                <div class="stock-tags">${specialTags}</div>
+                                <div class="stock-score">
+                                    <span class="score-badge">${s.score}分</span>
+                                    <span class="signal-text">${s.signal || ''}</span>
+                                </div>
+                            </div>
+                        </div>`;
                     }
                 }
+                
                 html += '</div></div>';
             }
+            
             html += '</div>';
             document.getElementById('content').innerHTML = html;
-            applyMode();
         }
+        
+        // 页面加载时获取数据
         loadData();
+        
+        // ========== K线图功能 ==========
+        let klineChart = null;
+        let candleSeries = null;
+        let volumeSeries = null;
+        let ma5Series = null;
+        let ma10Series = null;
+        let ma20Series = null;
+        let currentStockCode = '';
+        let currentDays = 120;
+        
+        // 显示K线图
+        async function showKline(code, name) {
+            currentStockCode = code;
+            
+            document.getElementById('klineStockName').textContent = name;
+            document.getElementById('klineStockCode').textContent = code;
+            document.getElementById('klineModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // 初始化图表
+            initChart();
+            
+            // 加载数据
+            await loadKlineData(code, currentDays);
+        }
+        
+        // 关闭K线图
+        function closeKline() {
+            document.getElementById('klineModal').classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // 销毁图表
+            if (klineChart) {
+                klineChart.remove();
+                klineChart = null;
+                candleSeries = null;
+                volumeSeries = null;
+            }
+        }
+        
+        // 初始化图表
+        function initChart() {
+            const container = document.getElementById('klineChart');
+            container.innerHTML = '';
+            
+            klineChart = LightweightCharts.createChart(container, {
+                layout: {
+                    background: { type: 'solid', color: '#131722' },
+                    textColor: '#d1d4dc',
+                },
+                grid: {
+                    vertLines: { color: '#363c4e' },
+                    horzLines: { color: '#363c4e' },
+                },
+                crosshair: {
+                    mode: LightweightCharts.CrosshairMode.Normal,
+                    vertLine: {
+                        color: '#758696',
+                        width: 1,
+                        style: LightweightCharts.LineStyle.Dashed,
+                    },
+                    horzLine: {
+                        color: '#758696',
+                        width: 1,
+                        style: LightweightCharts.LineStyle.Dashed,
+                    },
+                },
+                rightPriceScale: {
+                    borderColor: '#485c7b',
+                },
+                timeScale: {
+                    borderColor: '#485c7b',
+                    timeVisible: true,
+                },
+                handleScroll: { vertTouchDrag: true },
+                handleScale: { axisPressedMouseMove: true },
+            });
+            
+            // K线系列 - 红涨绿跌
+            candleSeries = klineChart.addCandlestickSeries({
+                upColor: '#ef5350',
+                downColor: '#26a69a',
+                borderUpColor: '#ef5350',
+                borderDownColor: '#26a69a',
+                wickUpColor: '#ef5350',
+                wickDownColor: '#26a69a',
+            });
+            
+            // MA5 均线 - 白色
+            ma5Series = klineChart.addLineSeries({
+                color: '#ffffff',
+                lineWidth: 1,
+                priceLineVisible: false,
+                lastValueVisible: false,
+                crosshairMarkerVisible: false,
+            });
+            
+            // MA10 均线 - 黄色
+            ma10Series = klineChart.addLineSeries({
+                color: '#f7b924',
+                lineWidth: 1,
+                priceLineVisible: false,
+                lastValueVisible: false,
+                crosshairMarkerVisible: false,
+            });
+            
+            // MA20 均线 - 紫色
+            ma20Series = klineChart.addLineSeries({
+                color: '#ab47bc',
+                lineWidth: 1,
+                priceLineVisible: false,
+                lastValueVisible: false,
+                crosshairMarkerVisible: false,
+            });
+            
+            // 成交量系列
+            volumeSeries = klineChart.addHistogramSeries({
+                color: '#26a69a',
+                priceFormat: { type: 'volume' },
+                priceScaleId: '',
+            });
+            
+            volumeSeries.priceScale().applyOptions({
+                scaleMargins: { top: 0.8, bottom: 0 },
+            });
+            
+            // 鼠标移动更新信息
+            klineChart.subscribeCrosshairMove(param => {
+                if (param.time) {
+                    const data = param.seriesData.get(candleSeries);
+                    if (data) {
+                        updateKlineInfo(data);
+                    }
+                }
+            });
+            
+            // 响应式
+            const resizeObserver = new ResizeObserver(entries => {
+                if (klineChart) {
+                    const { width, height } = entries[0].contentRect;
+                    klineChart.applyOptions({ width, height });
+                }
+            });
+            resizeObserver.observe(container);
+        }
+        
+        // 计算均线数据
+        function calculateMA(klines, period) {
+            const result = [];
+            for (let i = 0; i < klines.length; i++) {
+                if (i < period - 1) {
+                    continue; // 数据不足，跳过
+                }
+                let sum = 0;
+                for (let j = 0; j < period; j++) {
+                    sum += klines[i - j].close;
+                }
+                result.push({
+                    time: klines[i].time,
+                    value: sum / period,
+                });
+            }
+            return result;
+        }
+        
+        // 加载K线数据
+        async function loadKlineData(code, days) {
+            const container = document.getElementById('klineChart');
+            
+            // 显示加载状态
+            if (!candleSeries) {
+                container.innerHTML = '<div class="kline-loading"><div class="loading-spinner"></div><div>加载K线数据...</div></div>';
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/api/kline/${code}?days=${days}`);
+                const json = await res.json();
+                
+                if (!json.success) throw new Error(json.error);
+                
+                const klines = json.data.klines;
+                
+                // 设置K线数据
+                candleSeries.setData(klines);
+                
+                // 计算并设置均线数据
+                const ma5Data = calculateMA(klines, 5);
+                const ma10Data = calculateMA(klines, 10);
+                const ma20Data = calculateMA(klines, 20);
+                
+                ma5Series.setData(ma5Data);
+                ma10Series.setData(ma10Data);
+                ma20Series.setData(ma20Data);
+                
+                // 设置成交量数据（带颜色）
+                const volumeData = klines.map(k => ({
+                    time: k.time,
+                    value: k.volume,
+                    color: k.close >= k.open ? 'rgba(239, 83, 80, 0.5)' : 'rgba(38, 166, 154, 0.5)',
+                }));
+                volumeSeries.setData(volumeData);
+                
+                // 自适应显示
+                klineChart.timeScale().fitContent();
+                
+                // 更新最新数据信息
+                if (klines.length > 0) {
+                    updateKlineInfo(klines[klines.length - 1]);
+                }
+                
+            } catch (e) {
+                console.error('加载K线失败:', e);
+                container.innerHTML = `<div class="kline-loading" style="color:#f85149">${e.message}</div>`;
+            }
+        }
+        
+        // 更新K线信息
+        function updateKlineInfo(data) {
+            const isUp = data.close >= data.open;
+            
+            document.getElementById('kOpen').textContent = data.open.toFixed(2);
+            document.getElementById('kHigh').textContent = data.high.toFixed(2);
+            document.getElementById('kLow').textContent = data.low.toFixed(2);
+            document.getElementById('kClose').textContent = data.close.toFixed(2);
+            
+            document.getElementById('kClose').className = 'kline-stat-value ' + (isUp ? 'up' : 'down');
+        }
+        
+        // 切换时间范围
+        document.querySelectorAll('.kline-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.kline-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const days = parseInt(this.dataset.days);
+                currentDays = days;
+                
+                if (currentStockCode) {
+                    loadKlineData(currentStockCode, days);
+                }
+            });
+        });
+        
+        // 点击背景关闭
+        document.getElementById('klineModal').addEventListener('click', function(e) {
+            if (e.target === this) closeKline();
+        });
+        
+        // ESC关闭
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('klineModal').classList.contains('active')) {
+                closeKline();
+            }
+        });
     </script>
 </body>
 </html>

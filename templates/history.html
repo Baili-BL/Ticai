@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>历史报表 - 题材雷达</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', sans-serif; 
+            background: #0d1117; 
+            min-height: 100vh; 
+            color: #e6edf3;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        .icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: middle;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .icon-sm { width: 14px; height: 14px; }
+        .icon-lg { width: 20px; height: 20px; }
+        
+        /* 顶部导航 */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 12px 16px;
+        }
+        
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #58a6ff, #a371f7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo .icon { stroke: #58a6ff; width: 20px; height: 20px; }
+        
+        .nav-actions { display: flex; gap: 8px; align-items: center; }
+        
+        .nav-link {
+            color: #8b949e;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .nav-link.active {
+            background: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+        }
+        
+        /* 主内容 */
+        .container { padding: 12px; }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8b949e;
+        }
+        
+        /* 报表列表 */
+        .reports-list { display: flex; flex-direction: column; gap: 10px; }
+        
+        .report-card {
+            background: #161b22;
+            border-radius: 12px;
+            padding: 14px 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .report-card:active { background: #1f2937; }
+        
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .report-date {
+            font-size: 17px;
+            font-weight: 600;
+            color: #58a6ff;
+        }
+        
+        .report-market {
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .report-market.up { background: rgba(248, 81, 73, 0.15); color: #f85149; }
+        .report-market.down { background: rgba(63, 185, 80, 0.15); color: #3fb950; }
+        
+        .report-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #8b949e;
+        }
+        
+        .report-stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* 弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 0;
+        }
+        
+        .modal.active { display: block; }
+        
+        .modal-content {
+            background: #161b22;
+            min-height: 100vh;
+            padding: 16px;
+            padding-top: 60px;
+        }
+        
+        .modal-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: rgba(22, 27, 34, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            z-index: 10;
+        }
+        
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #58a6ff;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: #8b949e;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-btn .icon { width: 24px; height: 24px; }
+        
+        /* 题材区块 */
+        .theme-section { margin-bottom: 16px; }
+        
+        .theme-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #58a6ff;
+            padding: 10px 12px;
+            background: rgba(88, 166, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .stock-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+        
+        .stock-info-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .role-tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .role-leader { background: linear-gradient(135deg, #f85149, #da3633); color: #fff; }
+        .role-middle { background: linear-gradient(135deg, #58a6ff, #388bfd); color: #fff; }
+        .role-dip { background: linear-gradient(135deg, #3fb950, #2ea043); color: #fff; }
+        
+        .stock-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .stock-code {
+            font-size: 11px;
+            color: #8b949e;
+            flex-shrink: 0;
+        }
+        
+        .unbuyable-tag {
+            background: rgba(248, 81, 73, 0.2);
+            color: #f85149;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-left: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .stock-info-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        
+        .stock-price {
+            font-size: 13px;
+            color: #8b949e;
+        }
+        
+        .stock-change {
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .up { color: #f85149; }
+        .down { color: #3fb950; }
+        
+        .score-badge {
+            background: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .empty { text-align: center; padding: 40px; color: #8b949e; }
+        .error { text-align: center; padding: 40px; color: #f85149; }
+    </style>
+</head>
+<body>
+    <!-- SVG图标定义 -->
+    <svg style="display:none">
+        <defs>
+            <symbol id="icon-list" viewBox="0 0 24 24">
+                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+            </symbol>
+            <symbol id="icon-chart" viewBox="0 0 24 24">
+                <path d="M3 3v18h18M9 17V9m4 8v-5m4 5V6"/>
+            </symbol>
+            <symbol id="icon-trending-up" viewBox="0 0 24 24">
+                <path d="M23 6l-9.5 9.5-5-5L1 18M17 6h6v6"/>
+            </symbol>
+            <symbol id="icon-folder" viewBox="0 0 24 24">
+                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+            </symbol>
+            <symbol id="icon-file" viewBox="0 0 24 24">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+            </symbol>
+            <symbol id="icon-x" viewBox="0 0 24 24">
+                <path d="M18 6L6 18M6 6l12 12"/>
+            </symbol>
+            <symbol id="icon-ban" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M4.93 4.93l14.14 14.14"/>
+            </symbol>
+        </defs>
+    </svg>
+
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <svg class="icon"><use href="#icon-list"/></svg>
+                历史报表
+            </div>
+            <div class="nav-actions">
+                <a href="/" class="nav-link">
+                    <svg class="icon icon-sm"><use href="#icon-chart"/></svg>
+                    推荐
+                </a>
+                <a href="/history" class="nav-link active">
+                    <svg class="icon icon-sm"><use href="#icon-list"/></svg>
+                    历史
+                </a>
+                <a href="/performance" class="nav-link">
+                    <svg class="icon icon-sm"><use href="#icon-trending-up"/></svg>
+                    收益
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div id="content" class="loading">加载中...</div>
+    </div>
+    
+    <!-- 详情弹窗 -->
+    <div id="modal" class="modal">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle">报表详情</span>
+            <button class="close-btn" onclick="closeModal()">
+                <svg class="icon"><use href="#icon-x"/></svg>
+            </button>
+        </div>
+        <div class="modal-content" id="modalContent"></div>
+    </div>
+
+    <script>
+        async function loadReports() {
+            try {
+                const res = await fetch('/api/reports?limit=30');
+                const json = await res.json();
+                if (!json.success) throw new Error(json.error);
+                renderReports(json.data);
+            } catch (e) {
+                document.getElementById('content').innerHTML = '<div class="error">' + e.message + '</div>';
+            }
+        }
+        
+        function renderReports(reports) {
+            if (!reports || reports.length === 0) {
+                document.getElementById('content').innerHTML = '<div class="empty">暂无历史报表</div>';
+                return;
+            }
+            
+            let html = '<div class="reports-list">';
+            for (const r of reports) {
+                const mc = r.market_change || 0;
+                const mcClass = mc >= 0 ? 'up' : 'down';
+                const mcSign = mc >= 0 ? '+' : '';
+                
+                html += `
+                <div class="report-card" onclick="showDetail('${r.report_date}')">
+                    <div class="report-header">
+                        <div class="report-date">${r.report_date}</div>
+                        <div class="report-market ${mcClass}">大盘 ${mcSign}${mc.toFixed(2)}%</div>
+                    </div>
+                    <div class="report-stats">
+                        <span><svg class="icon icon-sm"><use href="#icon-folder"/></svg> ${r.themes_count}个题材</span>
+                        <span><svg class="icon icon-sm"><use href="#icon-file"/></svg> ${r.stocks_count}只股票</span>
+                    </div>
+                </div>`;
+            }
+            html += '</div>';
+            document.getElementById('content').innerHTML = html;
+        }
+        
+        async function showDetail(dateStr) {
+            const modal = document.getElementById('modal');
+            const modalContent = document.getElementById('modalContent');
+            const modalTitle = document.getElementById('modalTitle');
+            
+            modal.classList.add('active');
+            modalTitle.textContent = dateStr;
+            modalContent.innerHTML = '<div class="loading">加载中...</div>';
+            document.body.style.overflow = 'hidden';
+            
+            try {
+                const res = await fetch('/api/reports/' + dateStr);
+                const json = await res.json();
+                if (!json.success) throw new Error(json.error);
+                renderDetail(json.data);
+            } catch (e) {
+                modalContent.innerHTML = '<div class="error">' + e.message + '</div>';
+            }
+        }
+        
+        function renderDetail(report) {
+            const themes = report.themes || {};
+            let html = '';
+            
+            for (const [themeName, stocks] of Object.entries(themes)) {
+                html += `<div class="theme-section">
+                    <div class="theme-title">
+                        <svg class="icon icon-sm"><use href="#icon-folder"/></svg>
+                        ${themeName} (${stocks.length}只)
+                    </div>`;
+                
+                for (const s of stocks) {
+                    const changeClass = s.change_pct >= 0 ? 'up' : 'down';
+                    const changeSign = s.change_pct >= 0 ? '+' : '';
+                    
+                    let roleTag = '';
+                    if (s.role === '龙头') roleTag = '<span class="role-tag role-leader">龙头</span>';
+                    else if (s.role === '中军') roleTag = '<span class="role-tag role-middle">中军</span>';
+                    else if (s.role === '低吸') roleTag = '<span class="role-tag role-dip">低吸</span>';
+                    
+                    let unbuyableTag = '';
+                    if (s.is_buyable === 0 || s.unbuyable_reason) {
+                        unbuyableTag = `<span class="unbuyable-tag"><svg class="icon icon-sm"><use href="#icon-ban"/></svg>${s.unbuyable_reason || '买不到'}</span>`;
+                    }
+                    
+                    html += `
+                    <div class="stock-row">
+                        <div class="stock-info-left">
+                            ${roleTag}
+                            <span class="stock-name">${s.stock_name}</span>
+                            <span class="stock-code">${s.stock_code}</span>
+                            ${unbuyableTag}
+                        </div>
+                        <div class="stock-info-right">
+                            <span class="stock-price">¥${s.recommend_price.toFixed(2)}</span>
+                            <span class="stock-change ${changeClass}">${changeSign}${s.change_pct.toFixed(2)}%</span>
+                            <span class="score-badge">${s.score}分</span>
+                        </div>
+                    </div>`;
+                }
+                
+                html += '</div>';
+            }
+            
+            document.getElementById('modalContent').innerHTML = html || '<div class="empty">无数据</div>';
+        }
+        
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+        
+        loadReports();
+    </script>
+</body>
+</html>

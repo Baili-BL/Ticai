@@ -1,11 +1,17 @@
 # 路由模块
 import time
-from flask import Blueprint, jsonify, render_template, make_response
+from datetime import date, datetime
+from flask import Blueprint, jsonify, render_template, make_response, request
 from theme_fetcher import fetch_hot_themes, fetch_all_themes_with_stocks
 from analyzer import analyze_and_format_stocks
 from emotion_cycle import calculate_theme_emotion, get_stage_color, get_stage_advice
 from theme_quality import evaluate_theme_quality
 from news_fetcher import fetch_cls_news, evaluate_theme_news_factor, get_market_news_summary
+from database import (
+    save_report, get_report_by_date, get_recent_reports,
+    get_performance_summary, get_stock_history, init_database
+)
+from performance_tracker import update_all_performance, get_today_performance_report
 
 try:
     import akshare as ak
@@ -13,6 +19,9 @@ except ImportError:
     ak = None
 
 api = Blueprint('api', __name__)
+
+# 确保数据库已初始化
+init_database()
 
 
 def get_market_index_change() -> float:
@@ -172,6 +181,13 @@ def get_all_data():
         print(f"✅ 数据获取完成，共 {len(sorted_result)} 个题材")
         print("="*60 + "\n")
         
+        # 自动保存报表到数据库
+        try:
+            today = date.today()
+            save_report(today, market_change, sorted_result)
+        except Exception as save_err:
+            print(f"⚠️ 保存报表失败: {save_err}")
+        
         return jsonify({
             "success": True,
             "data": sorted_result,
@@ -180,4 +196,182 @@ def get_all_data():
     except Exception as e:
         import traceback
         traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+# ==================== 报表存储与查询API ====================
+
+@api.route('/api/reports')
+def get_reports():
+    """获取历史报表列表"""
+    try:
+        limit = request.args.get('limit', 30, type=int)
+        reports = get_recent_reports(limit)
+        return jsonify({
+            "success": True,
+            "data": reports
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@api.route('/api/reports/<report_date>')
+def get_report(report_date):
+    """获取指定日期的报表详情"""
+    try:
+        # 解析日期
+        try:
+            query_date = datetime.strptime(report_date, "%Y-%m-%d").date()
+        except:
+            return jsonify({"success": False, "error": "日期格式错误，请使用YYYY-MM-DD"}), 400
+        
+        report = get_report_by_date(query_date)
+        if not report:
+            return jsonify({"success": False, "error": "未找到该日期的报表"}), 404
+        
+        return jsonify({
+            "success": True,
+            "data": report
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+# ==================== 收益跟踪API ====================
+
+@api.route('/api/performance/summary')
+def get_performance():
+    """获取收益统计摘要"""
+    try:
+        days = request.args.get('days', 30, type=int)
+        summary = get_performance_summary(days)
+        return jsonify({
+            "success": True,
+            "data": summary
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@api.route('/api/performance/today')
+def get_today_performance():
+    """获取今日收益报告"""
+    try:
+        report = get_today_performance_report()
+        return jsonify({
+            "success": True,
+            "data": report
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@api.route('/api/performance/update', methods=['POST'])
+def trigger_performance_update():
+    """手动触发收益更新"""
+    try:
+        update_all_performance()
+        return jsonify({
+            "success": True,
+            "message": "收益更新完成"
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@api.route('/api/stock/<stock_code>/history')
+def get_stock_recommend_history(stock_code):
+    """获取股票的历史推荐记录"""
+    try:
+        limit = request.args.get('limit', 10, type=int)
+        history = get_stock_history(stock_code, limit)
+        return jsonify({
+            "success": True,
+            "data": history
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+# ==================== 历史报表页面 ====================
+
+@api.route('/history')
+def history_page():
+    """历史报表页面"""
+    response = make_response(render_template('history.html'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
+
+
+@api.route('/performance')
+def performance_page():
+    """收益统计页面"""
+    response = make_response(render_template('performance.html'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
+
+
+# ==================== K线数据API ====================
+
+@api.route('/api/kline/<stock_code>')
+def get_stock_kline(stock_code):
+    """
+    获取股票K线数据
+    参数：
+        days: 获取最近多少天的数据，默认250
+    """
+    import requests
+    
+    days = request.args.get('days', 250, type=int)
+    
+    try:
+        # 判断市场（0=深圳 1=上海）
+        market = "1" if stock_code.startswith(("6", "9")) else "0"
+        
+        # 东方财富K线接口
+        url = "http://push2his.eastmoney.com/api/qt/stock/kline/get"
+        params = {
+            "secid": f"{market}.{stock_code}",
+            "fields1": "f1,f2,f3,f4,f5,f6",
+            "fields2": "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61",
+            "klt": "101",  # 日K
+            "fqt": "1",    # 前复权
+            "end": "20500101",
+            "lmt": str(days),
+        }
+        
+        resp = requests.get(url, params=params, timeout=10)
+        data = resp.json()
+        
+        if not data.get("data") or not data["data"].get("klines"):
+            return jsonify({"success": False, "error": "无K线数据"}), 404
+        
+        stock_name = data["data"].get("name", "")
+        klines = data["data"]["klines"]
+        
+        # 解析K线数据
+        # 格式：日期,开盘,收盘,最高,最低,成交量,成交额,振幅,涨跌幅,涨跌额,换手率
+        result = []
+        for kline in klines:
+            parts = kline.split(",")
+            if len(parts) >= 6:
+                result.append({
+                    "time": parts[0],           # 日期 YYYY-MM-DD
+                    "open": float(parts[1]),    # 开盘价
+                    "high": float(parts[3]),    # 最高价
+                    "low": float(parts[4]),     # 最低价
+                    "close": float(parts[2]),   # 收盘价
+                    "volume": float(parts[5]),  # 成交量
+                })
+        
+        return jsonify({
+            "success": True,
+            "data": {
+                "code": stock_code,
+                "name": stock_name,
+                "klines": result
+            }
+        })
+        
+    except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
